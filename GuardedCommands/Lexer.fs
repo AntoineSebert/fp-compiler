@@ -1,4 +1,4 @@
-# 1 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 1 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
  
 module Lexer
 open System
@@ -23,7 +23,7 @@ let keyword s =
     | "false"     -> BOOL(false)
     | _           -> NAME s  
 
-# 26 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 26 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
 let trans : uint16[] array = 
     [| 
    (* State 0 *)
@@ -100,140 +100,140 @@ and tokenize  (lexbuf : Microsoft.FSharp.Text.Lexing.LexBuffer<_>) = _fslex_toke
 and _fslex_tokenize  _fslex_state lexbuf =
   match _fslex_tables.Interpret(_fslex_state,lexbuf) with
   | 0 -> ( 
-# 39 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 39 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  tokenize lexbuf 
-# 105 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 105 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 1 -> ( 
-# 40 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 40 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf 
-# 110 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 110 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 2 -> ( 
-# 41 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 41 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  INT<| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
-# 115 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 115 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 3 -> ( 
-# 42 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 42 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  LP  
-# 120 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 120 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 4 -> ( 
-# 43 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 43 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  RP  
-# 125 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 125 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 5 -> ( 
-# 44 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 44 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  LSP 
-# 130 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 130 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 6 -> ( 
-# 45 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 45 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  RSP 
-# 135 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 135 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 7 -> ( 
-# 46 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 46 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  LCP 
-# 140 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 140 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 8 -> ( 
-# 47 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 47 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  RCP 
-# 145 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 145 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 9 -> ( 
-# 48 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 48 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  COMMA 
-# 150 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 150 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 10 -> ( 
-# 49 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 49 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  SEMI  
-# 155 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 155 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 11 -> ( 
-# 50 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 50 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  COLON 
-# 160 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 160 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 12 -> ( 
-# 51 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 51 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  BAR 
-# 165 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 165 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 13 -> ( 
-# 52 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 52 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  TO 
-# 170 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 170 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 14 -> ( 
-# 53 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 53 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  ASG   
-# 175 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 175 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 15 -> ( 
-# 54 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 54 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  NEG 
-# 180 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 180 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 16 -> ( 
-# 55 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 55 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  AND 
-# 185 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 185 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 17 -> ( 
-# 56 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 56 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  NEQ 
-# 190 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 190 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 18 -> ( 
-# 57 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 57 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  LT 
-# 195 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 195 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 19 -> ( 
-# 58 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 58 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  GT 
-# 200 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 200 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 20 -> ( 
-# 59 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 59 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  LE 
-# 205 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 205 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 21 -> ( 
-# 60 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 60 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  TIMES 
-# 210 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 210 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 22 -> ( 
-# 61 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 61 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  MINUS 
-# 215 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 215 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 23 -> ( 
-# 62 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 62 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  EQ 
-# 220 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 220 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 24 -> ( 
-# 63 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 63 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  PLUS 
-# 225 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 225 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 25 -> ( 
-# 64 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 64 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
-# 230 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 230 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | 26 -> ( 
-# 65 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fsl"
+# 65 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fsl"
                                  EOF 
-# 235 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 235 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
           )
   | _ -> failwith "tokenize"
 
-# 3000000 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Lexer.fs"
+# 3000000 "/Users/Jesper/Documents/DTU/Masters/02257/fp-compiler/GuardedCommands/Lexer.fs"
