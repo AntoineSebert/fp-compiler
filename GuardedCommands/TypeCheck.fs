@@ -53,22 +53,25 @@ module TypeCheck =
                           | Return opt_e    -> match opt_e with
                                                | Some e -> ignore(tcE gtenv ltenv e)
                                                | None -> ()
-                          | Alt gc          -> ignore(tcGC gtenv ltenv gc)
+                          | Alt gcs         -> ignore(tcGCs gtenv ltenv gcs)
                           //| Do gc  ->
                           | Block([], stms) -> List.iter (tcS gtenv ltenv) stms
                           | _            -> failwith "tcS: this statement is not supported yet"
 
-    and tcGC gtenv ltenv gc = function
-                           | [] -> failwith "tcGC: this guarded command must include at least one command"
-                           | gc -> List.iter (fun (e, stms) ->
-                               if tcE gtenv ltenv e = BTyp
-                               then List.iter tcS stms
-                               else failwith "tcGC: guarded commands must be a boolean expression"
-                            ) gc
+    and tcGC gtenv ltenv = function
+                           | (_,[]) -> failwith "tcGC: Guarded command doesn't have any statements"
+                           | (e,stms) -> if tcE gtenv ltenv e = BTyp
+                                           then List.iter (tcS gtenv ltenv) stms
+                                           else failwith "tcGC: Guarded command is not of boolean type"
+
+
+    and tcGCs gtenv ltenv = function
+                            | GC([]) -> failwith "tcGC: Guarded command must include at least one command"
+                            | GC(gcs) -> List.iter (tcGC gtenv ltenv) gcs
 
     and tcGDec gtenv = function
                        | VarDec(t, s)               -> Map.add s t gtenv
-                       | FunDec(topt, f, decs, stm) -> Map.add f topt gtenv
+                       | FunDec(topt, f, decs, stm) -> failwith "type check: function/procedure declarations not yet supported"
 
     and tcGDecs gtenv = function
                         | dec::decs -> tcGDecs (tcGDec gtenv dec) decs
