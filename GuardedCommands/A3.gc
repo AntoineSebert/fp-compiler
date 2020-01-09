@@ -1,0 +1,10 @@
+﻿begin
+  function f() : int = 
+     { i : int, x: int, a : int[3];
+       i:= 0;
+       do i<3 -> a[i] := i ; i:= i+1 od;
+       i:= 0;
+       do i<3 -> print a[i]; x:= x+a[i]; i := i+1 od;
+	   return x };
+  print f()
+end

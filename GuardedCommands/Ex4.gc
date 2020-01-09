@@ -1,0 +1,9 @@
+﻿begin
+  x : int;
+  x := 1; 
+  do  x=1 -> print x; x:= x+1
+   |  x=2 -> print x; x:= x+1 
+   |  x=3 -> print x; x:= x+1 
+  od;
+  print x
+end

@@ -1,0 +1,11 @@
+﻿begin
+  i : int, x: int,
+  a : int[3],
+  function f(len:int, a:int[]) : int = 
+     { i: int; i:= 0;
+       do i<3 -> print a[i]; x:= x+a[i]; i := i+1 od;
+	   return x };
+  i:= 0; x:= 0;
+  do i<3 -> a[i] := i ; i:= i+1 od;
+  print f(3,a)
+end

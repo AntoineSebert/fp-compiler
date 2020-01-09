@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>e1814333-cdb8-461f-9ac2-1f11c1fc0af3</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GuardedCommands</RootNamespace>
+    <AssemblyName>GuardedCommands</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Name>GuardedCommands</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Debug\GuardedCommands.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\GuardedCommands.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(ProjectDir)..\packages\FsLexYacc.7.0.6\build\fslex.exe" "$(ProjectDir)Lexer.fsl"
+"$(ProjectDir)..\packages\FsLexYacc.7.0.6\build\fsyacc.exe" -v  --module Parser "$(ProjectDir)Parser.fsy"</PreBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AST.fs" />
+    <None Include="Parser.fsy" />
+    <None Include="Lexer.fsl" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Lexer.fs" />
+    <Compile Include="TypeCheck.fs" />
+    <Compile Include="CodeGen.fs" />
+    <Compile Include="CodeGenOpt.fs" />
+    <Compile Include="Util.fs" />
+    <None Include="Script.fsx" />
+    <Content Include="README.txt" />
+    <None Include="Ex0.gc" />
+    <None Include="Ex1.gc" />
+    <None Include="Ex2.gc" />
+    <None Include="Ex3.gc" />
+    <None Include="Ex4.gc" />
+    <None Include="Ex5.gc" />
+    <None Include="Ex6.gc" />
+    <None Include="Skip.gc" />
+    <None Include="Ex7.gc" />
+    <None Include="fact.gc" />
+    <None Include="factCBV.gc" />
+    <None Include="factRec.gc" />
+    <None Include="A0.gc" />
+    <None Include="A1.gc" />
+    <None Include="A2.gc" />
+    <None Include="A3.gc" />
+    <None Include="A4.gc" />
+    <None Include="Swap.gc" />
+    <None Include="QuickSortV1.gc" />
+    <None Include="par1.gc" />
+    <None Include="factImpPTyp.gc" />
+    <None Include="QuickSortV2.gc" />
+    <None Include="par2.gc" />
+    <None Include="packages.config" />
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.3.1.2.5\lib\net40\FSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FsLexYacc.Runtime">
+      <HintPath>..\packages\FsLexYacc.Runtime.7.0.6\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10\FsLexYacc.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Machine">
+      <HintPath>bin\Debug\Machine.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="VirtualMachine">
+      <HintPath>bin\Debug\virtualMachine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

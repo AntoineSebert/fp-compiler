@@ -1,0 +1,38 @@
+begin
+procedure swap(a: int[], i: int, j: int) =
+     { tmp: int; tmp := a[i]; a[i] := a[j]; a[j] := tmp},
+
+procedure printA(a: int[], len:int) = {i: int;  i:= 0; do ! i=len -> print a[i]; i:= i+1 od},
+
+procedure partition(a : int[], x0 : int, i: int, j: int, p: *int) =
+{ do i<=j && a[i] <= x0 -> i:= i+1
+   | i<=j               -> swap(a, i, j); j:= j-1
+  od ;
+  p^ := i },
+
+procedure qs(a: int[], i: int, j:int) =
+{ p: int ; 
+  if i<j -> partition(a, a[i], i+1, j, &p);
+             swap(a,i,p-1);
+		     qs(a,i,p-2);
+		     qs(a,p,j)
+  | true -> skip
+  fi },
+
+procedure quicksort(a: int[], len: int) = qs(a, 0, len - 1) ,
+
+a: int[5], 
+i: int;
+i:= 0;
+
+do i<5 -> a[i] := 5-i; i:= i+1 od;
+
+a[1]:= 3;
+printA(a,5);
+
+quicksort(a,5);
+printA(a,5)
+end
+
+   
+

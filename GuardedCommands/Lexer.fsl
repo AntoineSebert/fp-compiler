@@ -1,0 +1,66 @@
+﻿{
+module Lexer
+open System
+open System.Text
+open Parser
+open Microsoft.FSharp.Text.Lexing
+
+let keyword s = 
+    match s with
+    | "bool"      -> BTYP
+    | "int"       -> ITYP
+    | "print"     -> PRINT 
+    | "skip"      -> SKIP
+    | "abort"     -> ABORT
+    | "begin"     -> BEGIN
+    | "end"       -> END 
+    | "if"        -> IF 
+    | "fi"        -> FI 
+    | "do"        -> DO
+    | "od"        -> OD     
+    | "true"      -> BOOL(true) 
+    | "false"     -> BOOL(false)
+    | _           -> NAME s  
+}
+
+// These are some regular expression definitions
+let digit = ['0'-'9']
+let whitespace = [' ' '\t' ]
+let newline = ('\n' | '\r' '\n')
+let char = ['A'-'Z' 'a'-'z']
+let int = digit+
+let identifier  = char(char|digit|['_'])*
+let quote                 = '\"'
+let StringConst           = quote ([^'\"'])* quote
+
+
+rule tokenize = 
+  parse
+  | whitespace  { tokenize lexbuf }
+  | newline     { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf }
+  | int         { INT<| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
+  | "("         { LP  } 
+  | ")"         { RP  }
+  | "["         { LSP }
+  | "]"         { RSP }
+  | "{"         { LCP }
+  | "}"         { RCP }
+  | ","         { COMMA }         
+  | ";"         { SEMI  }
+  | ":"         { COLON }
+  | "|"         { BAR }
+  | "->"        { TO }
+  | ":="        { ASG   }
+  | "!"         { NEG }
+  | "&&"        { AND }
+  | "<>"        { NEQ }
+  | "<"         { LT }
+  | ">"         { GT }
+  | "<="        { LE } 
+  | "*"         { TIMES }
+  | "-"         { MINUS }
+  | "="         { EQ }
+  | "+"         { PLUS }   
+  | identifier  { keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
+  | eof         { EOF }
+

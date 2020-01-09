@@ -1,0 +1,5 @@
+﻿begin
+  res : int;
+  res := 4;
+  print res + 2 
+end

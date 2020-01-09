@@ -1,0 +1,10 @@
+﻿
+
+begin 
+   x: int; 
+   x:= 3; 
+   if x=0 -> print x
+    | x=0 -> print 10
+   fi;
+   print x
+end

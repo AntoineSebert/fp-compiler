@@ -1,0 +1,5 @@
+﻿begin x:int, y:int ;
+   x:= 5 ; y := 1 ;
+   do ! x = 0  ->  y := x*y; x:=x-1 od ;
+   print y
+end

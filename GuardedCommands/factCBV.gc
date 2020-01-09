@@ -1,0 +1,12 @@
+﻿begin
+res : int, x: int,
+function fact(n: int): int =
+{  y:int ;
+   y := 1 ;
+   do ! n = 0  ->  y := n*y; n:=n-1 od ;
+   return y } ;
+x := 4;
+res := fact(x);
+print x;
+print res
+end

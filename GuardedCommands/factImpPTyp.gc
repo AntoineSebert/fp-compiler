@@ -1,0 +1,8 @@
+﻿begin
+  res : int,
+  procedure fac(x: int, res: ^int) = 
+  { res^ := 1; 
+    do ! x=0 -> res^ := res^ * x; x:= x-1 od };
+  fac(4, &res);
+  print res
+end

@@ -1,0 +1,7 @@
+﻿
+begin 
+   x: int,
+   function f(x: int): int = { print x; return x+1 }; 
+   x:= f(2);
+   print x
+end
