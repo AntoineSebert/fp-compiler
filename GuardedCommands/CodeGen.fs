@@ -28,22 +28,38 @@ module CodeGeneration =
        function
        | N n          -> [CSTI n]
        | B b          -> [CSTI (if b then 1 else 0)]
-       | Access acc   -> CA vEnv fEnv acc @ [LDI] 
+       | Access acc   -> CA vEnv fEnv acc @ [LDI]
 
        | Apply("-", [e]) -> CE vEnv fEnv e @  [CSTI 0; SWAP; SUB]
+
+       | Apply("!", [e]) -> CE vEnv fEnv e @  [NOT]
 
        | Apply("&&",[b1;b2]) -> let labend   = newLabel()
                                 let labfalse = newLabel()
                                 CE vEnv fEnv b1 @ [IFZERO labfalse] @ CE vEnv fEnv b2
                                 @ [GOTO labend; Label labfalse; CSTI 0; Label labend]
 
-       | Apply(o,[e1;e2]) when List.exists (fun x -> o=x) ["+"; "*"; "="]
+       | Apply("||",[b1;b2]) -> let labend   = newLabel()
+                                let labfalse = newLabel()
+                                CE vEnv fEnv b1 @ [IFNZRO labend] @ CE vEnv fEnv b2
+                                @ [GOTO labend; Label labfalse; CSTI 0; Label labend]
+
+       | Apply(o,[e1;e2]) when List.exists (fun x -> o=x) ["+";"*";"=";"-";"<"]
                              -> let ins = match o with
                                           | "+"  -> [ADD]
                                           | "*"  -> [MUL]
-                                          | "="  -> [EQ] 
+                                          | "-"  -> [SUB]
+                                          | "="  -> [EQ]
+                                          | "<"  -> [SWAP; LT]
+                                          | "<=" -> let labeleq = newLabel()
+                                                    [EQ; IFNZRO labeleq; LT; IFNZRO labeleq; CSTI 0; Label labeleq]
+                                          | "<>" -> [EQ; NOT]
                                           | _    -> failwith "CE: this case is not possible"
                                 CE vEnv fEnv e1 @ CE vEnv fEnv e2 @ ins 
+
+      //  | Apply(">",[e1;e2]) -> CE vEnv fEnv e2 @ CE vEnv fEnv e1 @ [LT] // There is no greater than: Reverse the two elements
+
+       | Apply("<>",[e1;e2]) -> CE vEnv fEnv e1 @ CE vEnv fEnv e2 @ [LT] // There is no greater than: Reverse the two elements
 
        | _            -> failwith "CE: not supported yet"
        
@@ -55,7 +71,6 @@ module CodeGeneration =
                                | AIndex(acc, e) -> failwith "CA: array indexing not supported yet" 
                                | ADeref e       -> failwith "CA: pointer dereferencing not supported yet"
 
-  
 (* Bind declared variable in env and generate code to allocate it: *)   
    let allocate (kind : int -> Var) (typ, x) (vEnv : varEnv)  =
     let (env, fdepth) = vEnv 
@@ -75,11 +90,34 @@ module CodeGeneration =
 
        | Ass(acc,e)       -> CA vEnv fEnv acc @ CE vEnv fEnv e @ [STI; INCSP -1]
 
-       | Block([],stms) ->   CSs vEnv fEnv stms
+       | Block([],stms)   -> CSs vEnv fEnv stms
+
+       | Alt(gcs)         -> CGCALTs vEnv fEnv gcs
+
+       | Do(gcs)          -> CGCDOs vEnv fEnv gcs
 
        | _                -> failwith "CS: this statement is not supported yet"
 
    and CSs vEnv fEnv stms = List.collect (CS vEnv fEnv) stms 
+   and CGCDOs vEnv fEnv = function 
+                           | GC(gcs) -> List.collect (CGCDO vEnv fEnv) gcs
+   and CGCALTs vEnv fEnv = function
+                          | GC(gcs) -> let labfalse = newLabel()
+                                       List.collect (CGCALT vEnv fEnv labfalse) gcs @ [Label labfalse]                       
+                           
+/// CGCDO vEnv fEnv (e,stms) gives the code for the guarded command Do on the basis of a variable and a function environment
+   and CGCDO vEnv fEnv = function
+                          | (e,stms) -> let labfalse = newLabel()
+                                        let labloop  = newLabel()
+                                        match stms with
+                                        | [] -> [CSTI 0;]
+                                        | stms -> [Label labloop] @ CE vEnv fEnv e @ [IFZERO labfalse]
+                                        @ CSs vEnv fEnv stms @ [GOTO labloop; Label labfalse]
+
+/// CGCDO vEnv fEnv (e,stms) gives the code for the guarded command Alt on the basis of a variable and a function environment
+   and CGCALT vEnv fEnv labfalse = function
+                                   | (e,stms) -> CE vEnv fEnv e @ [IFZERO labfalse] 
+                                                 @ List.collect (CS vEnv fEnv) stms
 
 
 

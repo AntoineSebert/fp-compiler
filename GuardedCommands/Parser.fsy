@@ -103,4 +103,4 @@ Exp:
   | Exp GT Exp                        { Apply(">", [$1; $3])}
   | Exp LT Exp                        { Apply("<", [$1; $3])}
   | Exp NEQ Exp                       { Apply("<>", [$1; $3])}
-
+  | Exp OR Exp                        { Apply("||", [$1; $3])}

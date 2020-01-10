@@ -13,18 +13,20 @@ module TypeCheck =
         | N _                                                                      -> ITyp
         | B _                                                                      -> BTyp
         | Access acc                                                               -> tcA gtenv ltenv acc
-        | Apply(f,[e]) when List.exists (fun x ->  x = f) ["-"]                    -> tcMonadic gtenv ltenv f e
-        | Apply(f,[e1;e2]) when List.exists (fun x ->  x = f) ["+";"*"; "="; "&&"] -> tcDyadic gtenv ltenv f e1 e2
+        | Apply(f,[e]) when List.exists (fun x ->  x = f) ["-"; "!"]               -> tcMonadic gtenv ltenv f e
+        | Apply(f,[e1;e2]) when List.exists (fun x ->  x = f) ["+";"*";"=";"&&";"-";"<";">";"<=";"<>";"||"] -> tcDyadic gtenv ltenv f e1 e2
         | Addr addr                                                                -> tcA gtenv ltenv addr
+        | _                -> failwith ("tcE: not supported yet")
 
     and tcMonadic gtenv ltenv f e = match (f, tcE gtenv ltenv e) with
                                     | ("-", ITyp) -> ITyp
+                                    | ("!", BTyp) -> BTyp
                                     | _           -> failwith "illegal/illtyped monadic expression"
 
     and tcDyadic gtenv ltenv f e1 e2 = match (f, tcE gtenv ltenv e1, tcE gtenv ltenv e2) with
-                                       | (o, ITyp, ITyp) when List.exists (fun x ->  x = o) ["+"; "*"]  -> ITyp
-                                       | (o, ITyp, ITyp) when List.exists (fun x ->  x = o) ["="]       -> BTyp
-                                       | (o, BTyp, BTyp) when List.exists (fun x ->  x = o) ["&&"; "="] -> BTyp
+                                       | (o, ITyp, ITyp) when List.exists (fun x ->  x = o) ["+"; "*"; "-"]         -> ITyp
+                                       | (o, ITyp, ITyp) when List.exists (fun x ->  x = o) ["=";"<";">";"<=";"<>"] -> BTyp
+                                       | (o, BTyp, BTyp) when List.exists (fun x ->  x = o) ["&&";"=";"||"]    -> BTyp
                                        | _                                                              -> failwith("illegal/illtyped dyadic expression: " + f)
 
     // Typ option * string * Dec list * Stm
@@ -54,7 +56,7 @@ module TypeCheck =
                                                | Some e -> ignore(tcE gtenv ltenv e)
                                                | None -> ()
                           | Alt gcs         -> ignore(tcGCs gtenv ltenv gcs)
-                          //| Do gc  ->
+                          | Do gcs          -> ignore(tcGCs gtenv ltenv gcs)
                           | Block([], stms) -> List.iter (tcS gtenv ltenv) stms
                           | _            -> failwith "tcS: this statement is not supported yet"
 
@@ -66,7 +68,6 @@ module TypeCheck =
 
 
     and tcGCs gtenv ltenv = function
-                            | GC([]) -> failwith "tcGC: Guarded command must include at least one command"
                             | GC(gcs) -> List.iter (tcGC gtenv ltenv) gcs
 
     and tcGDec gtenv = function
