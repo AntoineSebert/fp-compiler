@@ -2,7 +2,6 @@
 
 namespace GuardedCommands.Util
 
-
 open System.IO
 open System.Text
 open Microsoft.FSharp.Text.Lexing
@@ -14,13 +13,13 @@ open Lexer
 open Machine
 open VirtualMachine
 
-//open GuardedCommands
-//open GuardedCommands.Backend
-//open Backend.CodeGeneration
-//open Backend.CodeGenerationOpt
-//open Backend.CodeGeneration
-//open GuardedCommands.Frontend
-//open GuardedCommands.Frontend.TypeCheck
+open GuardedCommands
+open GuardedCommands.Backend
+open Backend.CodeGeneration
+open Backend.CodeGenerationOpt
+open Backend.CodeGeneration
+open GuardedCommands.Frontend
+open GuardedCommands.Frontend.TypeCheck
 
 module ParserUtil =
 
@@ -34,7 +33,7 @@ module ParserUtil =
             failwith "parser termination"
 
 // Parse a file. (A statement is parsed)
-     let parseFromFile filename =
+    let parseFromFile filename =
         if File.Exists(filename)
         then parseString(File.ReadAllText(filename))
         else invalidArg "ParserUtil" "File not found"

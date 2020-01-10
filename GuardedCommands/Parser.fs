@@ -3,11 +3,11 @@ module Parser
 #nowarn "64";; // turn off warnings that type variables used in production annotations are instantiated to concrete type
 open Microsoft.FSharp.Text.Lexing
 open Microsoft.FSharp.Text.Parsing.ParseHelpers
-# 1 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 1 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
 
 open GuardedCommands.Frontend.AST
 
-# 10 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 10 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
 // This type is the type of tokens accepted by the parser
 type token = 
   | HIGH
@@ -26,6 +26,7 @@ type token =
   | LT
   | GT
   | NEQ
+  | OR
   | COMMA
   | COLON
   | SEMI
@@ -67,6 +68,7 @@ type tokenId =
     | TOKEN_LT
     | TOKEN_GT
     | TOKEN_NEQ
+    | TOKEN_OR
     | TOKEN_COMMA
     | TOKEN_COLON
     | TOKEN_SEMI
@@ -130,29 +132,30 @@ let tagOfToken (t:token) =
   | LT  -> 13 
   | GT  -> 14 
   | NEQ  -> 15 
-  | COMMA  -> 16 
-  | COLON  -> 17 
-  | SEMI  -> 18 
-  | BAR  -> 19 
-  | TO  -> 20 
-  | IF  -> 21 
-  | FI  -> 22 
-  | DO  -> 23 
-  | OD  -> 24 
-  | BEGIN  -> 25 
-  | END  -> 26 
-  | LP  -> 27 
-  | LCP  -> 28 
-  | LSP  -> 29 
-  | RP  -> 30 
-  | RCP  -> 31 
-  | RSP  -> 32 
-  | ITYP  -> 33 
-  | BTYP  -> 34 
-  | NAME _ -> 35 
-  | STRING _ -> 36 
-  | BOOL _ -> 37 
-  | INT _ -> 38 
+  | OR  -> 16 
+  | COMMA  -> 17 
+  | COLON  -> 18 
+  | SEMI  -> 19 
+  | BAR  -> 20 
+  | TO  -> 21 
+  | IF  -> 22 
+  | FI  -> 23 
+  | DO  -> 24 
+  | OD  -> 25 
+  | BEGIN  -> 26 
+  | END  -> 27 
+  | LP  -> 28 
+  | LCP  -> 29 
+  | LSP  -> 30 
+  | RP  -> 31 
+  | RCP  -> 32 
+  | RSP  -> 33 
+  | ITYP  -> 34 
+  | BTYP  -> 35 
+  | NAME _ -> 36 
+  | STRING _ -> 37 
+  | BOOL _ -> 38 
+  | INT _ -> 39 
 
 // This function maps integer indexes to symbolic token ids
 let tokenTagToTokenId (tokenIdx:int) = 
@@ -173,31 +176,32 @@ let tokenTagToTokenId (tokenIdx:int) =
   | 13 -> TOKEN_LT 
   | 14 -> TOKEN_GT 
   | 15 -> TOKEN_NEQ 
-  | 16 -> TOKEN_COMMA 
-  | 17 -> TOKEN_COLON 
-  | 18 -> TOKEN_SEMI 
-  | 19 -> TOKEN_BAR 
-  | 20 -> TOKEN_TO 
-  | 21 -> TOKEN_IF 
-  | 22 -> TOKEN_FI 
-  | 23 -> TOKEN_DO 
-  | 24 -> TOKEN_OD 
-  | 25 -> TOKEN_BEGIN 
-  | 26 -> TOKEN_END 
-  | 27 -> TOKEN_LP 
-  | 28 -> TOKEN_LCP 
-  | 29 -> TOKEN_LSP 
-  | 30 -> TOKEN_RP 
-  | 31 -> TOKEN_RCP 
-  | 32 -> TOKEN_RSP 
-  | 33 -> TOKEN_ITYP 
-  | 34 -> TOKEN_BTYP 
-  | 35 -> TOKEN_NAME 
-  | 36 -> TOKEN_STRING 
-  | 37 -> TOKEN_BOOL 
-  | 38 -> TOKEN_INT 
-  | 41 -> TOKEN_end_of_input
-  | 39 -> TOKEN_error
+  | 16 -> TOKEN_OR 
+  | 17 -> TOKEN_COMMA 
+  | 18 -> TOKEN_COLON 
+  | 19 -> TOKEN_SEMI 
+  | 20 -> TOKEN_BAR 
+  | 21 -> TOKEN_TO 
+  | 22 -> TOKEN_IF 
+  | 23 -> TOKEN_FI 
+  | 24 -> TOKEN_DO 
+  | 25 -> TOKEN_OD 
+  | 26 -> TOKEN_BEGIN 
+  | 27 -> TOKEN_END 
+  | 28 -> TOKEN_LP 
+  | 29 -> TOKEN_LCP 
+  | 30 -> TOKEN_LSP 
+  | 31 -> TOKEN_RP 
+  | 32 -> TOKEN_RCP 
+  | 33 -> TOKEN_RSP 
+  | 34 -> TOKEN_ITYP 
+  | 35 -> TOKEN_BTYP 
+  | 36 -> TOKEN_NAME 
+  | 37 -> TOKEN_STRING 
+  | 38 -> TOKEN_BOOL 
+  | 39 -> TOKEN_INT 
+  | 42 -> TOKEN_end_of_input
+  | 40 -> TOKEN_error
   | _ -> failwith "tokenTagToTokenId: bad token"
 
 /// This function maps production indexes returned in syntax errors to strings representing the non terminal that would be produced by that production
@@ -247,10 +251,11 @@ let prodIdxToNonTerminal (prodIdx:int) =
     | 41 -> NONTERM_Exp 
     | 42 -> NONTERM_Exp 
     | 43 -> NONTERM_Exp 
+    | 44 -> NONTERM_Exp 
     | _ -> failwith "prodIdxToNonTerminal: bad production index"
 
-let _fsyacc_endOfInputTag = 41 
-let _fsyacc_tagOfErrorTerminal = 39
+let _fsyacc_endOfInputTag = 42 
+let _fsyacc_tagOfErrorTerminal = 40
 
 // This function gets the name of a token as a string
 let token_to_string (t:token) = 
@@ -271,6 +276,7 @@ let token_to_string (t:token) =
   | LT  -> "LT" 
   | GT  -> "GT" 
   | NEQ  -> "NEQ" 
+  | OR  -> "OR" 
   | COMMA  -> "COMMA" 
   | COLON  -> "COLON" 
   | SEMI  -> "SEMI" 
@@ -314,6 +320,7 @@ let _fsyacc_dataOfToken (t:token) =
   | LT  -> (null : System.Object) 
   | GT  -> (null : System.Object) 
   | NEQ  -> (null : System.Object) 
+  | OR  -> (null : System.Object) 
   | COMMA  -> (null : System.Object) 
   | COLON  -> (null : System.Object) 
   | SEMI  -> (null : System.Object) 
@@ -337,18 +344,18 @@ let _fsyacc_dataOfToken (t:token) =
   | STRING _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
   | BOOL _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
   | INT _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
-let _fsyacc_gotos = [| 0us; 65535us; 0us; 65535us; 1us; 65535us; 0us; 1us; 2us; 65535us; 0us; 4us; 2us; 3us; 1us; 65535us; 18us; 15us; 1us; 65535us; 18us; 19us; 2us; 65535us; 6us; 20us; 21us; 20us; 0us; 65535us; 2us; 65535us; 6us; 7us; 21us; 22us; 22us; 65535us; 6us; 26us; 8us; 26us; 24us; 50us; 27us; 50us; 31us; 26us; 34us; 50us; 37us; 50us; 42us; 26us; 46us; 26us; 48us; 50us; 53us; 50us; 56us; 50us; 58us; 50us; 69us; 50us; 70us; 50us; 71us; 50us; 72us; 50us; 73us; 50us; 74us; 50us; 75us; 50us; 76us; 50us; 77us; 50us; 5us; 65535us; 6us; 41us; 8us; 41us; 31us; 41us; 42us; 41us; 46us; 41us; 4us; 65535us; 6us; 11us; 8us; 9us; 31us; 32us; 46us; 47us; 5us; 65535us; 6us; 40us; 8us; 40us; 31us; 40us; 42us; 43us; 46us; 40us; 2us; 65535us; 34us; 35us; 37us; 38us; 3us; 65535us; 34us; 44us; 37us; 44us; 48us; 49us; 17us; 65535us; 24us; 25us; 27us; 28us; 34us; 45us; 37us; 45us; 48us; 45us; 53us; 54us; 56us; 57us; 58us; 59us; 69us; 60us; 70us; 61us; 71us; 62us; 72us; 63us; 73us; 64us; 74us; 65us; 75us; 66us; 76us; 67us; 77us; 68us; |]
-let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 2us; 4us; 7us; 9us; 11us; 14us; 15us; 18us; 41us; 47us; 52us; 58us; 61us; 65us; |]
-let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 1us; 1us; 1us; 1us; 1us; 2us; 1us; 2us; 2us; 3us; 4us; 1us; 3us; 1us; 3us; 1us; 3us; 1us; 3us; 1us; 4us; 1us; 4us; 1us; 5us; 1us; 6us; 1us; 7us; 1us; 8us; 2us; 8us; 13us; 1us; 8us; 1us; 8us; 2us; 11us; 12us; 1us; 12us; 1us; 12us; 1us; 13us; 1us; 14us; 10us; 14us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 1us; 15us; 1us; 15us; 10us; 15us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 1us; 16us; 1us; 17us; 1us; 18us; 1us; 18us; 1us; 18us; 1us; 19us; 1us; 19us; 1us; 19us; 1us; 20us; 1us; 20us; 1us; 20us; 1us; 22us; 2us; 23us; 24us; 1us; 24us; 1us; 24us; 1us; 26us; 11us; 27us; 28us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 2us; 27us; 28us; 2us; 27us; 28us; 1us; 28us; 1us; 28us; 1us; 29us; 1us; 30us; 1us; 31us; 1us; 32us; 10us; 32us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 1us; 32us; 1us; 33us; 10us; 33us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 1us; 34us; 10us; 34us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 38us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 39us; 39us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 39us; 40us; 40us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 41us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 42us; 43us; 10us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 43us; 1us; 35us; 1us; 36us; 1us; 37us; 1us; 38us; 1us; 39us; 1us; 40us; 1us; 41us; 1us; 42us; 1us; 43us; |]
-let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 6us; 8us; 10us; 12us; 15us; 17us; 19us; 21us; 23us; 25us; 27us; 29us; 31us; 33us; 35us; 38us; 40us; 42us; 45us; 47us; 49us; 51us; 53us; 64us; 66us; 68us; 79us; 81us; 83us; 85us; 87us; 89us; 91us; 93us; 95us; 97us; 99us; 101us; 103us; 106us; 108us; 110us; 112us; 124us; 127us; 130us; 132us; 134us; 136us; 138us; 140us; 142us; 153us; 155us; 157us; 168us; 170us; 181us; 192us; 203us; 214us; 225us; 236us; 247us; 258us; 269us; 280us; 282us; 284us; 286us; 288us; 290us; 292us; 294us; 296us; |]
-let _fsyacc_action_rows = 78
-let _fsyacc_actionTableElements = [|1us; 32768us; 25us; 6us; 0us; 49152us; 1us; 32768us; 25us; 6us; 0us; 49152us; 1us; 32768us; 1us; 5us; 0us; 16386us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 21us; 34us; 23us; 37us; 28us; 31us; 35us; 17us; 1us; 32768us; 18us; 8us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 21us; 34us; 23us; 37us; 28us; 31us; 35us; 23us; 1us; 32768us; 26us; 10us; 0us; 16387us; 1us; 32768us; 26us; 12us; 0us; 16388us; 0us; 16389us; 0us; 16390us; 0us; 16391us; 1us; 32768us; 17us; 18us; 1us; 16397us; 17us; 18us; 2us; 32768us; 33us; 14us; 34us; 13us; 0us; 16392us; 1us; 16395us; 16us; 21us; 1us; 32768us; 35us; 16us; 0us; 16396us; 0us; 16397us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 9us; 16398us; 7us; 70us; 8us; 71us; 9us; 69us; 10us; 72us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 1us; 32768us; 3us; 27us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 9us; 16399us; 7us; 70us; 8us; 71us; 9us; 69us; 10us; 72us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 0us; 16400us; 0us; 16401us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 21us; 34us; 23us; 37us; 28us; 31us; 35us; 23us; 1us; 32768us; 31us; 33us; 0us; 16402us; 6us; 16409us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 1us; 32768us; 22us; 36us; 0us; 16403us; 6us; 16409us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 1us; 32768us; 24us; 39us; 0us; 16404us; 0us; 16406us; 1us; 16407us; 18us; 42us; 7us; 32768us; 2us; 24us; 4us; 29us; 5us; 30us; 21us; 34us; 23us; 37us; 28us; 31us; 35us; 23us; 0us; 16408us; 0us; 16410us; 10us; 32768us; 7us; 70us; 8us; 71us; 9us; 69us; 10us; 72us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 20us; 46us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 21us; 34us; 23us; 37us; 28us; 31us; 35us; 23us; 1us; 16411us; 19us; 48us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 0us; 16412us; 0us; 16413us; 0us; 16414us; 0us; 16415us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 10us; 32768us; 7us; 70us; 8us; 71us; 9us; 69us; 10us; 72us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 30us; 55us; 0us; 16416us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 1us; 16417us; 9us; 69us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 8us; 16418us; 7us; 70us; 8us; 71us; 9us; 69us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 0us; 16419us; 1us; 16420us; 9us; 69us; 1us; 16421us; 9us; 69us; 8us; 16422us; 7us; 70us; 8us; 71us; 9us; 69us; 11us; 73us; 12us; 74us; 13us; 76us; 14us; 75us; 15us; 77us; 3us; 16423us; 7us; 70us; 8us; 71us; 9us; 69us; 3us; 16424us; 7us; 70us; 8us; 71us; 9us; 69us; 3us; 16425us; 7us; 70us; 8us; 71us; 9us; 69us; 3us; 16426us; 7us; 70us; 8us; 71us; 9us; 69us; 3us; 16427us; 7us; 70us; 8us; 71us; 9us; 69us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 27us; 53us; 35us; 23us; 37us; 52us; 38us; 51us; |]
-let _fsyacc_actionTableRowOffsets = [|0us; 2us; 3us; 5us; 6us; 8us; 9us; 17us; 19us; 27us; 29us; 30us; 32us; 33us; 34us; 35us; 36us; 38us; 40us; 43us; 44us; 46us; 48us; 49us; 50us; 57us; 67us; 69us; 76us; 86us; 87us; 88us; 96us; 98us; 99us; 106us; 108us; 109us; 116us; 118us; 119us; 120us; 122us; 130us; 131us; 132us; 143us; 151us; 153us; 160us; 161us; 162us; 163us; 164us; 171us; 182us; 183us; 190us; 192us; 199us; 208us; 209us; 211us; 213us; 222us; 226us; 230us; 234us; 238us; 242us; 249us; 256us; 263us; 270us; 277us; 284us; 291us; 298us; |]
-let _fsyacc_reductionSymbolCounts = [|1us; 1us; 2us; 5us; 3us; 1us; 1us; 1us; 3us; 0us; 1us; 1us; 3us; 1us; 2us; 3us; 1us; 1us; 3us; 3us; 3us; 0us; 1us; 1us; 3us; 0us; 1us; 3us; 5us; 1us; 1us; 1us; 3us; 2us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; |]
-let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 3us; 3us; 4us; 4us; 5us; 6us; 7us; 7us; 8us; 8us; 9us; 10us; 10us; 10us; 10us; 10us; 10us; 10us; 11us; 11us; 12us; 12us; 13us; 13us; 14us; 14us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; |]
-let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 49152us; 65535us; 16386us; 65535us; 65535us; 65535us; 65535us; 16387us; 65535us; 16388us; 16389us; 16390us; 16391us; 65535us; 65535us; 65535us; 16392us; 65535us; 65535us; 16396us; 16397us; 65535us; 65535us; 65535us; 65535us; 65535us; 16400us; 16401us; 65535us; 65535us; 16402us; 65535us; 65535us; 16403us; 65535us; 65535us; 16404us; 16406us; 65535us; 65535us; 16408us; 16410us; 65535us; 65535us; 65535us; 65535us; 16412us; 16413us; 16414us; 16415us; 65535us; 65535us; 16416us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; |]
+let _fsyacc_gotos = [| 0us; 65535us; 0us; 65535us; 1us; 65535us; 0us; 1us; 2us; 65535us; 0us; 4us; 2us; 3us; 1us; 65535us; 18us; 15us; 1us; 65535us; 18us; 19us; 2us; 65535us; 6us; 20us; 21us; 20us; 0us; 65535us; 2us; 65535us; 6us; 7us; 21us; 22us; 23us; 65535us; 6us; 26us; 8us; 26us; 24us; 50us; 27us; 50us; 31us; 26us; 34us; 50us; 37us; 50us; 42us; 26us; 46us; 26us; 48us; 50us; 53us; 50us; 56us; 50us; 58us; 50us; 70us; 50us; 71us; 50us; 72us; 50us; 73us; 50us; 74us; 50us; 75us; 50us; 76us; 50us; 77us; 50us; 78us; 50us; 79us; 50us; 5us; 65535us; 6us; 41us; 8us; 41us; 31us; 41us; 42us; 41us; 46us; 41us; 4us; 65535us; 6us; 11us; 8us; 9us; 31us; 32us; 46us; 47us; 5us; 65535us; 6us; 40us; 8us; 40us; 31us; 40us; 42us; 43us; 46us; 40us; 2us; 65535us; 34us; 35us; 37us; 38us; 3us; 65535us; 34us; 44us; 37us; 44us; 48us; 49us; 18us; 65535us; 24us; 25us; 27us; 28us; 34us; 45us; 37us; 45us; 48us; 45us; 53us; 54us; 56us; 57us; 58us; 59us; 70us; 60us; 71us; 61us; 72us; 62us; 73us; 63us; 74us; 64us; 75us; 65us; 76us; 66us; 77us; 67us; 78us; 68us; 79us; 69us; |]
+let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 2us; 4us; 7us; 9us; 11us; 14us; 15us; 18us; 42us; 48us; 53us; 59us; 62us; 66us; |]
+let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 1us; 1us; 1us; 1us; 1us; 2us; 1us; 2us; 2us; 3us; 4us; 1us; 3us; 1us; 3us; 1us; 3us; 1us; 3us; 1us; 4us; 1us; 4us; 1us; 5us; 1us; 6us; 1us; 7us; 1us; 8us; 2us; 8us; 13us; 1us; 8us; 1us; 8us; 2us; 11us; 12us; 1us; 12us; 1us; 12us; 1us; 13us; 1us; 14us; 11us; 14us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 1us; 15us; 1us; 15us; 11us; 15us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 1us; 16us; 1us; 17us; 1us; 18us; 1us; 18us; 1us; 18us; 1us; 19us; 1us; 19us; 1us; 19us; 1us; 20us; 1us; 20us; 1us; 20us; 1us; 22us; 2us; 23us; 24us; 1us; 24us; 1us; 24us; 1us; 26us; 12us; 27us; 28us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 2us; 27us; 28us; 2us; 27us; 28us; 1us; 28us; 1us; 28us; 1us; 29us; 1us; 30us; 1us; 31us; 1us; 32us; 11us; 32us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 1us; 32us; 1us; 33us; 11us; 33us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 1us; 34us; 11us; 34us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 39us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 40us; 40us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 41us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 42us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 43us; 44us; 11us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 44us; 1us; 35us; 1us; 36us; 1us; 37us; 1us; 38us; 1us; 39us; 1us; 40us; 1us; 41us; 1us; 42us; 1us; 43us; 1us; 44us; |]
+let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 6us; 8us; 10us; 12us; 15us; 17us; 19us; 21us; 23us; 25us; 27us; 29us; 31us; 33us; 35us; 38us; 40us; 42us; 45us; 47us; 49us; 51us; 53us; 65us; 67us; 69us; 81us; 83us; 85us; 87us; 89us; 91us; 93us; 95us; 97us; 99us; 101us; 103us; 105us; 108us; 110us; 112us; 114us; 127us; 130us; 133us; 135us; 137us; 139us; 141us; 143us; 145us; 157us; 159us; 161us; 173us; 175us; 187us; 199us; 211us; 223us; 235us; 247us; 259us; 271us; 283us; 295us; 307us; 309us; 311us; 313us; 315us; 317us; 319us; 321us; 323us; 325us; |]
+let _fsyacc_action_rows = 80
+let _fsyacc_actionTableElements = [|1us; 32768us; 26us; 6us; 0us; 49152us; 1us; 32768us; 26us; 6us; 0us; 49152us; 1us; 32768us; 1us; 5us; 0us; 16386us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 22us; 34us; 24us; 37us; 29us; 31us; 36us; 17us; 1us; 32768us; 19us; 8us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 22us; 34us; 24us; 37us; 29us; 31us; 36us; 23us; 1us; 32768us; 27us; 10us; 0us; 16387us; 1us; 32768us; 27us; 12us; 0us; 16388us; 0us; 16389us; 0us; 16390us; 0us; 16391us; 1us; 32768us; 18us; 18us; 1us; 16397us; 18us; 18us; 2us; 32768us; 34us; 14us; 35us; 13us; 0us; 16392us; 1us; 16395us; 17us; 21us; 1us; 32768us; 36us; 16us; 0us; 16396us; 0us; 16397us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 10us; 16398us; 7us; 71us; 8us; 72us; 9us; 70us; 10us; 73us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 16us; 79us; 1us; 32768us; 3us; 27us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 10us; 16399us; 7us; 71us; 8us; 72us; 9us; 70us; 10us; 73us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 16us; 79us; 0us; 16400us; 0us; 16401us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 22us; 34us; 24us; 37us; 29us; 31us; 36us; 23us; 1us; 32768us; 32us; 33us; 0us; 16402us; 6us; 16409us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 1us; 32768us; 23us; 36us; 0us; 16403us; 6us; 16409us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 1us; 32768us; 25us; 39us; 0us; 16404us; 0us; 16406us; 1us; 16407us; 19us; 42us; 7us; 32768us; 2us; 24us; 4us; 29us; 5us; 30us; 22us; 34us; 24us; 37us; 29us; 31us; 36us; 23us; 0us; 16408us; 0us; 16410us; 11us; 32768us; 7us; 71us; 8us; 72us; 9us; 70us; 10us; 73us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 16us; 79us; 21us; 46us; 7us; 16405us; 2us; 24us; 4us; 29us; 5us; 30us; 22us; 34us; 24us; 37us; 29us; 31us; 36us; 23us; 1us; 16411us; 20us; 48us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 0us; 16412us; 0us; 16413us; 0us; 16414us; 0us; 16415us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 11us; 32768us; 7us; 71us; 8us; 72us; 9us; 70us; 10us; 73us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 16us; 79us; 31us; 55us; 0us; 16416us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 1us; 16417us; 9us; 70us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 8us; 16418us; 7us; 71us; 8us; 72us; 9us; 70us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 0us; 16419us; 1us; 16420us; 9us; 70us; 1us; 16421us; 9us; 70us; 8us; 16422us; 7us; 71us; 8us; 72us; 9us; 70us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 3us; 16423us; 7us; 71us; 8us; 72us; 9us; 70us; 3us; 16424us; 7us; 71us; 8us; 72us; 9us; 70us; 3us; 16425us; 7us; 71us; 8us; 72us; 9us; 70us; 3us; 16426us; 7us; 71us; 8us; 72us; 9us; 70us; 3us; 16427us; 7us; 71us; 8us; 72us; 9us; 70us; 8us; 16428us; 7us; 71us; 8us; 72us; 9us; 70us; 11us; 74us; 12us; 75us; 13us; 77us; 14us; 76us; 15us; 78us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; 6us; 32768us; 6us; 58us; 8us; 56us; 28us; 53us; 36us; 23us; 38us; 52us; 39us; 51us; |]
+let _fsyacc_actionTableRowOffsets = [|0us; 2us; 3us; 5us; 6us; 8us; 9us; 17us; 19us; 27us; 29us; 30us; 32us; 33us; 34us; 35us; 36us; 38us; 40us; 43us; 44us; 46us; 48us; 49us; 50us; 57us; 68us; 70us; 77us; 88us; 89us; 90us; 98us; 100us; 101us; 108us; 110us; 111us; 118us; 120us; 121us; 122us; 124us; 132us; 133us; 134us; 146us; 154us; 156us; 163us; 164us; 165us; 166us; 167us; 174us; 186us; 187us; 194us; 196us; 203us; 212us; 213us; 215us; 217us; 226us; 230us; 234us; 238us; 242us; 246us; 255us; 262us; 269us; 276us; 283us; 290us; 297us; 304us; 311us; 318us; |]
+let _fsyacc_reductionSymbolCounts = [|1us; 1us; 2us; 5us; 3us; 1us; 1us; 1us; 3us; 0us; 1us; 1us; 3us; 1us; 2us; 3us; 1us; 1us; 3us; 3us; 3us; 0us; 1us; 1us; 3us; 0us; 1us; 3us; 5us; 1us; 1us; 1us; 3us; 2us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; |]
+let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 3us; 3us; 4us; 4us; 5us; 6us; 7us; 7us; 8us; 8us; 9us; 10us; 10us; 10us; 10us; 10us; 10us; 10us; 11us; 11us; 12us; 12us; 13us; 13us; 14us; 14us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; 15us; |]
+let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 49152us; 65535us; 16386us; 65535us; 65535us; 65535us; 65535us; 16387us; 65535us; 16388us; 16389us; 16390us; 16391us; 65535us; 65535us; 65535us; 16392us; 65535us; 65535us; 16396us; 16397us; 65535us; 65535us; 65535us; 65535us; 65535us; 16400us; 16401us; 65535us; 65535us; 16402us; 65535us; 65535us; 16403us; 65535us; 65535us; 16404us; 16406us; 65535us; 65535us; 16408us; 16410us; 65535us; 65535us; 65535us; 65535us; 16412us; 16413us; 16414us; 16415us; 65535us; 65535us; 16416us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; |]
 let _fsyacc_reductions ()  =    [| 
-# 351 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 358 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Program)) in
             Microsoft.FSharp.Core.Operators.box
@@ -357,7 +364,7 @@ let _fsyacc_reductions ()  =    [|
                       raise (Microsoft.FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startMain));
-# 360 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 367 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Program)) in
             Microsoft.FSharp.Core.Operators.box
@@ -366,292 +373,292 @@ let _fsyacc_reductions ()  =    [|
                       raise (Microsoft.FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startProg));
-# 369 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 376 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Program)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 38 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 38 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                               _1 
                    )
-# 38 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 38 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Program));
-# 380 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 387 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Dec list)) in
             let _4 = (let data = parseState.GetInput(4) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 41 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 41 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                               P(_2, _4) 
                    )
-# 41 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 41 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Program));
-# 392 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 399 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 42 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 42 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                               P([], _2) 
                    )
-# 42 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 42 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Program));
-# 403 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 410 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 45 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 45 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              BTyp 
                    )
-# 45 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 45 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Typ));
-# 413 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 420 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 46 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 46 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              ITyp 
                    )
-# 46 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 46 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Typ));
-# 423 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 430 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Typ)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 49 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 49 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _1 
                    )
-# 49 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 49 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Typ));
-# 434 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 441 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Typ)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 52 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 52 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              VarDec(_3,_1) 
                    )
-# 52 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 52 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Dec));
-# 446 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 453 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 55 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 55 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              [] 
                    )
-# 55 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 55 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Dec list));
-# 456 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 463 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Dec list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 56 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 56 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _1 
                    )
-# 56 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 56 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Dec list));
-# 467 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 474 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Dec)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 59 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 59 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              [_1] 
                    )
-# 59 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 59 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Dec list));
-# 478 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 485 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Dec)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Dec list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 60 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 60 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _1 :: _3 
                    )
-# 60 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 60 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Dec list));
-# 490 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 497 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 63 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 63 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              AVar _1 
                    )
-# 63 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 63 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Access));
-# 501 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 508 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 66 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 66 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              PrintLn _2 
                    )
-# 66 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 66 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 512 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 519 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Access)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 67 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 67 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Ass(_1,_3)  
                    )
-# 67 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 67 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 524 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 531 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 68 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 68 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Do (GC []) 
                    )
-# 68 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 68 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 534 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 541 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 69 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 69 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Alt (GC []) 
                    )
-# 69 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 69 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 544 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 551 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 70 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 70 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Block([], _2) 
                    )
-# 70 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 70 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 555 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 562 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : GuardedCommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 71 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 71 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Alt _2 
                    )
-# 71 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 71 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 566 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 573 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : GuardedCommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 72 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 72 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Do _2  
                    )
-# 72 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 72 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm));
-# 577 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 584 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 75 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 75 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              [] 
                    )
-# 75 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 75 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm list));
-# 587 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 594 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 76 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 76 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _1 
                    )
-# 76 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 76 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm list));
-# 598 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 605 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Stm)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 79 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 79 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              [_1] 
                    )
-# 79 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 79 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm list));
-# 609 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 616 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Stm)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 80 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 80 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _1 :: _3 
                    )
-# 80 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 80 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Stm list));
-# 621 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 628 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 83 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 83 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              GC [] 
                    )
-# 83 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 83 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : GuardedCommand));
-# 631 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 638 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : (Exp * Stm list) list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 84 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 84 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              GC _1 
                    )
-# 84 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 84 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : GuardedCommand));
-# 642 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 649 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 87 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 87 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              [(_1,_3)]   
                    )
-# 87 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 87 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : (Exp * Stm list) list));
-# 654 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 661 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Stm list)) in
@@ -659,187 +666,199 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 88 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 88 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                          (_1,_3)::_5 
                    )
-# 88 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 88 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : (Exp * Stm list) list));
-# 667 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 674 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Access)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 91 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 91 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Access _1 
                    )
-# 91 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 91 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 678 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 685 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : int)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 92 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 92 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              N _1 
                    )
-# 92 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 92 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 689 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 696 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bool)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 93 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 93 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              B _1 
                    )
-# 93 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 93 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 700 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 707 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 94 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 94 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              _2 
                    )
-# 94 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 94 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 711 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 718 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 95 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 95 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("-", [_2])
                    )
-# 95 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 95 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 722 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 729 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 96 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 96 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("!", [_2])
                    )
-# 96 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 96 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 733 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 740 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 97 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 97 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("*", [_1; _3])
                    )
-# 97 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 97 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 745 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 752 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 98 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 98 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("+", [_1; _3])
                    )
-# 98 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 98 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 757 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 764 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 99 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 99 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("-", [_1; _3])
                    )
-# 99 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 99 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 769 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 776 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 100 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 100 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("&&", [_1; _3])
                    )
-# 100 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 100 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 781 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 788 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 101 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 101 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("=", [_1; _3])
                    )
-# 101 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 101 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 793 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 800 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 102 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 102 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("<=", [_1; _3])
                    )
-# 102 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 102 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 805 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 812 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 103 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 103 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply(">", [_1; _3])
                    )
-# 103 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 103 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 817 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 824 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 104 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 104 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("<", [_1; _3])
                    )
-# 104 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 104 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
-# 829 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 836 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
         (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 105 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 105 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                                                              Apply("<>", [_1; _3])
                    )
-# 105 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fsy"
+# 105 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
+                 : Exp));
+# 848 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
+        (fun (parseState : Microsoft.FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : Exp)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 106 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
+                                                             Apply("||", [_1; _3])
+                   )
+# 106 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fsy"
                  : Exp));
 |]
-# 842 "C:\Users\mire\Documents\MRH data\Kurser\02257-18\Project 2\TEST\GuardedCommands\GuardedCommands\Parser.fs"
+# 861 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Parser.fs"
 let tables () : Microsoft.FSharp.Text.Parsing.Tables<_> = 
   { reductions= _fsyacc_reductions ();
     endOfInputTag = _fsyacc_endOfInputTag;
@@ -858,7 +877,7 @@ let tables () : Microsoft.FSharp.Text.Parsing.Tables<_> =
                               match parse_error_rich with 
                               | Some f -> f ctxt
                               | None -> parse_error ctxt.Message);
-    numTerminals = 42;
+    numTerminals = 43;
     productionToNonTerminalTable = _fsyacc_productionToNonTerminalTable  }
 let engine lexer lexbuf startState = (tables ()).Interpret(lexer, lexbuf, startState)
 let Main lexer lexbuf : Program =

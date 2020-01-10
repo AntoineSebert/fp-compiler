@@ -10,12 +10,12 @@ open GuardedCommands.Frontend.AST
 %token LP LCP LSP RP RCP RSP
 %token IF FI DO OD BEGIN END 
 %token COMMA COLON SEMI BAR TO
-%token NEG PLUS MINUS TIMES AND EQ LE LT GT NEQ
+%token NEG PLUS MINUS TIMES AND EQ LE LT GT NEQ OR
 %token PRINT ASG SKIP ABORT
 %token EOF
 %token HIGH
 
-%left AND
+%left AND OR
 %nonassoc NEG
 %left EQ LE LT GT NEQ
 %left PLUS MINUS 

@@ -42,8 +42,10 @@ module TypeCheck =
                                                           | None   -> failwith ("no declaration for : " + x)
                                                           | Some t -> t
                                               | Some t -> t
-                          | AIndex(acc, e) -> failwith "tcA: array indexing not supported yes"
-                          | ADeref e       -> failwith "tcA: pointer dereferencing not supported yes"
+                          | AIndex(acc, e) -> match tcE gtenv ltenv e with
+                                              | ITyp _ | BTyp _ -> tcA gtenv ltenv acc
+                                              | _ -> failwith "tcA: array index must be an integer"
+                          | ADeref e       -> failwith "tcA: pointer dereferencing not supported yet"
 
 /// tcS gtenv ltenv retOpt s checks the well-typeness of a statement s on the basis of type environments gtenv and ltenv
 /// for global and local variables and the possible type of return expressions
@@ -57,8 +59,8 @@ module TypeCheck =
                                                | None -> ()
                           | Alt gcs         -> ignore(tcGCs gtenv ltenv gcs)
                           | Do gcs          -> ignore(tcGCs gtenv ltenv gcs)
-                          | Block([], stms) -> List.iter (tcS gtenv ltenv) stms
-                          | _            -> failwith "tcS: this statement is not supported yet"
+                          | Block(decs, stms) -> List.iter (tcS gtenv (tcGDecs ltenv decs)) stms
+                          | Call(s, es)     -> for e in es do ignore(tcE gtenv ltenv e)
 
     and tcGC gtenv ltenv = function
                            | (_,[]) -> failwith "tcGC: Guarded command doesn't have any statements"
@@ -66,13 +68,38 @@ module TypeCheck =
                                            then List.iter (tcS gtenv ltenv) stms
                                            else failwith "tcGC: Guarded command is not of boolean type"
 
-
     and tcGCs gtenv ltenv = function
                             | GC(gcs) -> List.iter (tcGC gtenv ltenv) gcs
 
+    and tcStmReturnType topt gtenv ltenv stm = function
+        // unwrap opt and check
+        | Return opt_e -> if opt_e <> topt
+                            then failwith "tcStmReturnType: all return statements must have the function's return type"
+                            else tcS gtenv ltenv
+                          topt
+        | Block([], stms) ->
+          for stm in stms do
+            tcStmReturnType topt gtenv ltenv stm
+          topt
+        | _ -> topt
+
+    and tcFunParam decs =
+        // test distinct
+        //[1; 2; 2; 3]
+        //[1; 2; 3]
+        tcGDecs Map.empty decs
+
+    and tcFun gtenv topt f decs stm =
+        (*
+        match (tcStmReturnType topt gtenv (tcFunParam decs) stm) with
+        | Some t -> Map.add f t gtenv
+        | None -> failith ""
+        *)
+        Map.empty
+
     and tcGDec gtenv = function
                        | VarDec(t, s)               -> Map.add s t gtenv
-                       | FunDec(topt, f, decs, stm) -> failwith "type check: function/procedure declarations not yet supported"
+                       | FunDec(topt, f, decs, stm) -> tcFun gtenv topt f decs stm
 
     and tcGDecs gtenv = function
                         | dec::decs -> tcGDecs (tcGDec gtenv dec) decs
