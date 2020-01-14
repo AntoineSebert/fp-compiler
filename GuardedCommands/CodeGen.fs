@@ -3,8 +3,8 @@
 // This file is obtained by an adaption of the file MicroC/Comp.fs by Peter Sestoft
 open System
 open Machine
-
 open GuardedCommands.Frontend.AST
+
 module CodeGeneration =
 
 (* A global variable has an absolute address, a local one has an offset: *)
@@ -66,38 +66,34 @@ module CodeGeneration =
    and CA vEnv fEnv = function | AVar x         -> match Map.find x (fst vEnv) with
                                                    | (GloVar addr,_) -> [CSTI addr]
                                                    | (LocVar addr,_) -> failwith "CA: Local variables not supported yet"
-                               | AIndex(acc, e) -> failwith "CA: array indexing not supported yet"
+                               | AIndex(acc, e) -> match acc with
+                                                   | (AIndex _) -> failwith "CA: Array of arrays not permitted."
+                                                   | _          -> CA vEnv fEnv acc @ CE vEnv fEnv e
                                | ADeref e       -> failwith "CA: pointer dereferencing not supported yet"
 
 (* Bind declared variable in env and generate code to allocate it: *)
    let allocate (kind : int -> Var) (typ, x) (vEnv : varEnv)  =
-    let (env, fdepth) = vEnv
-    match typ with
-    | ATyp (ATyp _, _) ->
-      raise (Failure "allocate: array of arrays not permitted")
-    | ATyp (t, Some i) -> failwith "allocate: array not supported yet"
-    | _ ->
-      let newEnv = (Map.add x (kind fdepth, typ) env, fdepth+1)
-      let code = [INCSP 1]
-      (newEnv, code)
+      let (env, fdepth) = vEnv
+      match typ with
+      | ATyp (ATyp _, _) -> raise (Failure "allocate: array of arrays not permitted")
+      | ATyp (t, Some i) -> failwith "allocate: array not supported yet"
+      | _ ->
+        let newEnv = (Map.add x (kind fdepth, typ) env, fdepth+1)
+        let code = [INCSP 1]
+        (newEnv, code)
 
 /// CS vEnv fEnv s gives the code for a statement s on the basis of a variable and a function environment
    let rec CS vEnv fEnv = function
        | PrintLn e        -> CE vEnv fEnv e @ [PRINTI; INCSP -1]
-
        | Ass(acc,e)       -> CA vEnv fEnv acc @ CE vEnv fEnv e @ [STI; INCSP -1]
-
        | Block([],stms)   -> CSs vEnv fEnv stms
-
        | Alt(gcs)         -> CGCALTs vEnv fEnv gcs
-
        | Do(gcs)          -> CGCDOs vEnv fEnv gcs
-
        | _                -> failwith "CS: this statement is not supported yet"
 
    and CSs vEnv fEnv stms = List.collect (CS vEnv fEnv) stms
    and CGCDOs vEnv fEnv = function
-                           | GC(gcs) -> List.collect (CGCDO vEnv fEnv) gcs
+                          | GC(gcs) -> List.collect (CGCDO vEnv fEnv) gcs
    and CGCALTs vEnv fEnv = function
                           | GC(gcs) -> let labfalse = newLabel()
                                        List.collect (CGCALT vEnv fEnv labfalse) gcs @ [Label labfalse]

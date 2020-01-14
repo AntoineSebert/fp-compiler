@@ -3,24 +3,24 @@ module Lexer
 open System
 open System.Text
 open Parser
-open Microsoft.FSharp.Text.Lexing
+open FSharp.Text.Lexing
 
 let keyword s = 
     match s with
     | "bool"      -> BTYP
     | "int"       -> ITYP
-    | "print"     -> PRINT 
+    | "print"     -> PRINT
     | "skip"      -> SKIP
     | "abort"     -> ABORT
     | "begin"     -> BEGIN
-    | "end"       -> END 
-    | "if"        -> IF 
-    | "fi"        -> FI 
+    | "end"       -> END
+    | "if"        -> IF
+    | "fi"        -> FI
     | "do"        -> DO
-    | "od"        -> OD     
-    | "true"      -> BOOL(true) 
+    | "od"        -> OD
+    | "true"      -> BOOL(true)
     | "false"     -> BOOL(false)
-    | _           -> NAME s  
+    | _           -> NAME s
 }
 
 // These are some regular expression definitions
@@ -35,33 +35,32 @@ let StringConst           = quote ([^'\"'])* quote
 
 
 rule tokenize = 
-  parse
-  | whitespace  { tokenize lexbuf }
-  | newline     { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf }
-  | int         { INT<| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
-  | "("         { LP  } 
-  | ")"         { RP  }
-  | "["         { LSP }
-  | "]"         { RSP }
-  | "{"         { LCP }
-  | "}"         { RCP }
-  | ","         { COMMA }         
-  | ";"         { SEMI  }
-  | ":"         { COLON }
-  | "|"         { BAR }
-  | "->"        { TO }
-  | ":="        { ASG   }
-  | "!"         { NEG }
-  | "&&"        { AND }
-  | "||"        { OR }
-  | "<>"        { NEQ }
-  | "<"         { LT }
-  | ">"         { GT }
-  | "<="        { LE } 
-  | "*"         { TIMES }
-  | "-"         { MINUS }
-  | "="         { EQ }
-  | "+"         { PLUS }   
-  | identifier  { keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
-  | eof         { EOF }
-
+    parse
+    | whitespace  { tokenize lexbuf }
+    | newline     { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf }
+    | int         { INT<| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
+    | "("         { LP  } 
+    | ")"         { RP  }
+    | "["         { LSP }
+    | "]"         { RSP }
+    | "{"         { LCP }
+    | "}"         { RCP }
+    | ","         { COMMA }
+    | ";"         { SEMI }
+    | ":"         { COLON }
+    | "|"         { BAR }
+    | "->"        { TO }
+    | ":="        { ASG }
+    | "!"         { NEG }
+    | "&&"        { AND }
+    | "||"        { OR }
+    | "<>"        { NEQ }
+    | "<"         { LT }
+    | ">"         { GT }
+    | "<="        { LE }
+    | "*"         { TIMES }
+    | "-"         { MINUS }
+    | "="         { EQ }
+    | "+"         { PLUS }
+    | identifier  { keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
+    | eof         { EOF }

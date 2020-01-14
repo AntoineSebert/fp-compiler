@@ -71,6 +71,7 @@ Stm:
   | IF GuardedCommand FI              { Alt $2 }
   | DO GuardedCommand OD              { Do $2  }
 
+
 StmL:
                                       { [] } 
   | StmList                           { $1 }    
@@ -90,8 +91,8 @@ GCList:
 Exp:
     Access                            { Access $1 }
   | INT                               { N $1 }
-  | BOOL                              { B $1 }       
-  | LP Exp RP                         { $2 } 
+  | BOOL                              { B $1 }
+  | LP Exp RP                         { $2 }
   | MINUS Exp                         { Apply("-", [$2])}
   | NEG Exp                           { Apply("!", [$2])}
   | Exp TIMES Exp                     { Apply("*", [$1; $3])}

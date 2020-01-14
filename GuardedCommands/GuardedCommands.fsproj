@@ -9,8 +9,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>GuardedCommands</RootNamespace>
     <AssemblyName>GuardedCommands</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <Name>GuardedCommands</Name>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -19,7 +22,7 @@
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
+    <WarningLevel>5</WarningLevel>
     <DocumentationFile>bin\Debug\GuardedCommands.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -48,8 +51,8 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)..\packages\FsLexYacc.7.0.6\build\fslex.exe" "$(ProjectDir)Lexer.fsl"
-"$(ProjectDir)..\packages\FsLexYacc.7.0.6\build\fsyacc.exe" -v  --module Parser "$(ProjectDir)Parser.fsy"</PreBuildEvent>
+    <PreBuildEvent>"$(ProjectDir)..\packages\FsLexYacc.10.0.0\build\fslex\net46\fslex.exe" "$(ProjectDir)Lexer.fsl"
+"$(ProjectDir)..\packages\FsLexYacc.10.0.0\build\fsyacc\net46\fsyacc.exe" -v  --module Parser "$(ProjectDir)Parser.fsy"</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AST.fs" />
@@ -86,16 +89,24 @@
     <None Include="factImpPTyp.gc" />
     <None Include="QuickSortV2.gc" />
     <None Include="par2.gc" />
-    <None Include="packages.config" />
     <None Include="app.config" />
+    <FsYacc Include="..\GuardedCommands\Parser.fsy">
+      <OtherFlags>--module Parser</OtherFlags>
+      <Link>Parser.fsy</Link>
+    </FsYacc>
+    <FsLex Include="..\GuardedCommands\Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode</OtherFlags>
+      <Link>Lexer.fsl</Link>
+    </FsLex>
+    <Content Include="packages.config" />
+    <None Include="testgen.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.5\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\FSharp.Core.4.7.0\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FsLexYacc.Runtime">
-      <HintPath>..\packages\FsLexYacc.Runtime.7.0.6\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10\FsLexYacc.Runtime.dll</HintPath>
+      <HintPath>..\packages\FsLexYacc.Runtime.10.0.0\lib\net46\FsLexYacc.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Machine">
       <HintPath>bin\Debug\Machine.dll</HintPath>
@@ -109,14 +120,18 @@
       <HintPath>bin\Debug\virtualMachine.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Import Project="..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" />
+  <Import Project="..\packages\FsLexYacc.10.0.0\build\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.10.0.0\build\FsLexYacc.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>Ce projet fait référence à des packages NuGet qui sont manquants sur cet ordinateur. Utilisez l'option de restauration des packages NuGet pour les télécharger. Pour plus d'informations, consultez http://go.microsoft.com/fwlink/?LinkID=322105. Le fichier manquant est : {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.7.0.6\build\FsLexYacc.targets'))" />
+    <Error Condition="!Exists('..\packages\FsLexYacc.10.0.0\build\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.10.0.0\build\FsLexYacc.targets'))" />
+    <Error Condition="!Exists('..\packages\FsLexYacc.10.0.0\build\fsyacc\net46\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.10.0.0\build\fsyacc\net46\FsLexYacc.targets'))" />
+    <Error Condition="!Exists('..\packages\FsLexYacc.10.0.0\build\fsyacc\netcoreapp3.0\FsLexYacc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FsLexYacc.10.0.0\build\fsyacc\netcoreapp3.0\FsLexYacc.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="..\packages\FsLexYacc.10.0.0\build\fsyacc\net46\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.10.0.0\build\fsyacc\net46\FsLexYacc.targets')" />
+  <Import Project="..\packages\FsLexYacc.10.0.0\build\fsyacc\netcoreapp3.0\FsLexYacc.targets" Condition="Exists('..\packages\FsLexYacc.10.0.0\build\fsyacc\netcoreapp3.0\FsLexYacc.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
