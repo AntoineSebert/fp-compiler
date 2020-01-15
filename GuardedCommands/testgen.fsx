@@ -23,18 +23,16 @@ module TestGen =
         | N n -> string n
         | B b -> if b then "true" else "false"
         | Access acc -> acc_to_string acc
-        | Addr acc -> "&" + acc_to_string acc
-        | Apply(name, exps) -> name
-                               + "("
-                               + List.fold (fun r s -> r + s + ", ") "" [for exp in exps do exp_to_string exp]
-                               + ")"
+        | Apply(op, [exp]) -> op + exp_to_string exp
+        | Apply(op, [e1; e2]) -> "(" + exp_to_string e1 + " " + op + " " + exp_to_string e2 + ")"
+        | Apply(f, es) -> ""
 
     and acc_to_string (acc: Access): string =
         match acc with
         | AVar name -> name
         | AIndex(acc, exp) -> acc_to_string acc + "[" + exp_to_string exp + "]"
         | ADeref exp -> exp_to_string exp + "^"
-    
+
     let rec stm_to_string (stm: Stm, level: int): string =
         match stm with
         | PrintLn exp -> indent level + "print " + exp_to_string exp
@@ -71,7 +69,7 @@ module TestGen =
         | FunDec(topt, f, decs, stm) -> if topt.IsSome then "function " else "procedure "
                                         + f
                                         + " ("
-                                        + List.fold (fun r s -> r + s + ", ") "" [for dec in decs do dec_to_string(dec, level)] 
+                                        + List.fold (fun r s -> r + s + ", ") "" [for dec in decs do dec_to_string(dec, level)]
                                         + ")"
                                         + if topt.IsSome then ": " + type_to_string topt.Value else ""
                                         + " ="
@@ -101,11 +99,11 @@ module TestGen =
         match program with
         | P(decs, stms) -> "begin\n"
                            + List.fold (fun r s -> r + s + ",\n") "" [for dec in decs do indent level + dec_to_string(dec, level)]
-                           + "\n"
+                           + ";\n"
                            + List.fold (fun r s -> r + s + ";\n") "" [for stm in stms do indent level + stm_to_string(stm, level)]
                            + "end"
 
-    let join (p:Map<'a,'b>) (q:Map<'a,'b>) = 
+    let join (p:Map<'a,'b>) (q:Map<'a,'b>) =
         Map(Seq.concat [ (Map.toSeq p) ; (Map.toSeq q) ])
 
     let get_var_by_type (scope: Map<string, Typ>, _type: Typ): Option<string> =
@@ -136,13 +134,14 @@ module TestGen =
 
     let rec gen_exp (scope: Map<string, Typ>): Exp =
         match rand.Next(20) with
-        | 0 | 1 -> B(Convert.ToBoolean(rand.Next(2)))
-        | 2 | 3 -> N(rand.Next(2048))
-        | 4     -> Addr(gen_acc scope)
-        | 5     -> match get_var scope with
-                   | Some(name) -> Apply(name, [for i = 0 to rand.Next(4) do gen_exp scope])
-                   | None       -> gen_exp scope
-        | _     -> Access(gen_acc scope)
+        | 0 | 1         -> B(Convert.ToBoolean(rand.Next(2)))
+        | 2 | 3         -> N(rand.Next(2048))
+        | 4 | 5 | 6 | 7 -> match rand.Next(2) with
+                           | 0 -> let ops = ["-"; "!"]
+                                  Apply(ops.[rand.Next(ops.Length)], [gen_exp scope])
+                           | _ -> let ops = ["+"; "*"; "="; "&&"; "-"; "<"; ">"; "<="; "<>"; "||"]
+                                  Apply(ops.[rand.Next(ops.Length)], [gen_exp scope; gen_exp scope])
+        | _             -> Access(gen_acc scope)
 
     and gen_acc (scope: Map<string, Typ>): Access =
         match rand.Next(15) with
@@ -151,6 +150,21 @@ module TestGen =
         | _ -> match get_var scope with
                | Some(name) -> AVar(name)
                | None -> gen_acc scope
+               
+    let gen_param_type: Typ =
+        match rand.Next(10) with
+        | 0         -> ATyp((if rand.Next(2) = 1 then ITyp else BTyp), None)
+        | 1 | 2 | 3 -> BTyp
+        | _         -> ITyp
+
+    let gen_typ: Typ =
+       match rand.Next(20) with
+       | 0 -> ATyp((if rand.Next(2) = 1 then ITyp else BTyp), Some(rand.Next(1, 64)))
+       | 2 -> if rand.Next(2) = 1
+              then FTyp([for i = 0 to rand.Next(4) do gen_param_type], None)
+              else FTyp([for i = 0 to rand.Next(4) do gen_param_type], Some(gen_param_type))
+       | 3 | 4 | 5 | 6 | 7 | 8 -> BTyp
+       | _ -> ITyp
 
     let rec gen_stm (scope: Map<string, Typ>): Stm =
         match rand.Next(20) with
@@ -158,59 +172,42 @@ module TestGen =
         | 4 -> if rand.Next(2) = 1
                then Return(None)
                else Return(Some(gen_exp scope))
+        (*
         | 5 -> Alt(gen_gc scope)
         | 6 -> Do(gen_gc scope)
         | 7 -> let mutable lscope = Map.empty
-               let decs = [for i = 0 to rand.Next(4) do gen_dec &lscope]
+               let decs = [for i = 0 to rand.Next(4) do gen_dec lscope]
                Block(decs, [for i = 0 to rand.Next(8) do gen_stm (join scope lscope)])
         | 8 | 9 | 10 -> match get_var scope with
                               | Some(name) -> Call(name, [for i = 0 to rand.Next(4) do gen_exp scope])
                               | None -> gen_stm scope
+        *)
         | _ -> Ass(gen_acc scope, gen_exp scope)
 
     and gen_gc (scope: Map<string, Typ>): GuardedCommand =
         GC([for i = 0 to rand.Next(4) do (gen_exp scope, [for i = 0 to rand.Next(2) do gen_stm scope])])
 
-    and gen_dec (scope: byref<Map<string, Typ>>): Dec =
+    and gen_dec (scope: Map<string, Typ>): Dec =
        match rand.Next(8) with
-       | 0 -> if rand.Next(2) = 1
-              then let mutable lscope = scope
-                   let decs = [for i = 0 to rand.Next(4) do VarDec(gen_typ true, gen_str lscope)]
-                   FunDec(None, gen_str (join scope lscope), decs, gen_stm (join scope lscope))
-              else let mutable lscope = scope
-                   let decs = [for i = 0 to rand.Next(4) do VarDec(gen_typ true, gen_str lscope)]
-                   FunDec(Some(gen_typ true), gen_str (join scope lscope), decs, gen_stm (join scope lscope))
-       | _ -> let _type = gen_typ false
-              let name = gen_str scope
-              scope <- scope.Add(name, _type)
-              VarDec(_type, name)
-
-    and gen_typ_arr (is_param: bool): Typ * Option<int> =
-        let gen_size (is_param: bool): Option<int> =
-            if is_param
-            then None
-            else Some(rand.Next(1, 64))
-
-        (if rand.Next(2) = 1 then ITyp else BTyp), gen_size is_param
-
-    and gen_typ (is_param: bool): Typ =
-        match rand.Next(20) with
-        | 0 -> ATyp(gen_typ_arr is_param)
-        | 1 -> PTyp(gen_typ is_param)
-        | 2 -> if rand.Next(2) = 1
-               then FTyp([for i = 0 to rand.Next(4) do gen_typ true], None)
-               else FTyp([for i = 0 to rand.Next(4) do gen_typ true], Some(gen_typ true))
-        | 3 | 4 | 5 | 6 | 7 | 8 -> BTyp
-        | _ -> ITyp
+       | 0 -> FunDec(
+                  (if rand.Next(2) = 1 then None else Some(gen_param_type)),
+                  gen_str scope,
+                  [for i = 0 to rand.Next(4) do VarDec(gen_param_type, gen_str scope)],
+                  gen_stm scope
+              )
+       | _ -> let var = VarDec(gen_typ, gen_str scope)
+              printfn "%O" var.ToString
+              var
 
     let gen_program: Program =
-        let dec_count = rand.Next(2, 8)
+        let dec_count = rand.Next(4, 12)
         let stm_count = rand.Next(2, 8) * dec_count
         let mutable scope = Map.empty
 
-        let dec_list = [for i=0 to dec_count do gen_dec &scope]
-        let stm_list = [for i=0 to stm_count do gen_stm scope]
+        let dec_list = [for i=0 to dec_count do gen_dec scope]
+        //let stm_list = [for i=0 to stm_count do gen_stm scope]
 
-        P(dec_list, stm_list)
+        P(dec_list, [](*stm_list*))
 
-printfn "%O" (TestGen.prog_to_string TestGen.gen_program)
+//printfn "%O" (TestGen.prog_to_string TestGen.gen_program)
+printfn "%O" TestGen.gen_program

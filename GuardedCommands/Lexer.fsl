@@ -24,15 +24,14 @@ let keyword s =
 }
 
 // These are some regular expression definitions
-let digit = ['0'-'9']
-let whitespace = [' ' '\t' ]
-let newline = ('\n' | '\r' '\n')
-let char = ['A'-'Z' 'a'-'z']
-let int = digit+
+let digit       = ['0'-'9']
+let whitespace  = [' ' '\t' ]
+let newline     = ('\n' | '\r' '\n')
+let char        = ['A'-'Z' 'a'-'z']
+let int         = digit+
 let identifier  = char(char|digit|['_'])*
-let quote                 = '\"'
-let StringConst           = quote ([^'\"'])* quote
-
+let quote       = '\"'
+let StringConst = quote ([^'\"'])* quote
 
 rule tokenize = 
     parse
@@ -63,4 +62,6 @@ rule tokenize =
     | "="         { EQ }
     | "+"         { PLUS }
     | identifier  { keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
+    | "^"         { CAR }
+    | "&"         { AMP }
     | eof         { EOF }

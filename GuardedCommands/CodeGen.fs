@@ -28,10 +28,8 @@ module CodeGeneration =
        | N n          -> [CSTI n]
        | B b          -> [CSTI (if b then 1 else 0)]
        | Access acc   -> CA vEnv fEnv acc @ [LDI]
-
-       | Apply("-", [e]) -> CE vEnv fEnv e @  [CSTI 0; SWAP; SUB]
-
-       | Apply("!", [e]) -> CE vEnv fEnv e @  [NOT]
+       | Apply("-", [e]) -> CE vEnv fEnv e @ [CSTI 0; SWAP; SUB]
+       | Apply("!", [e]) -> CE vEnv fEnv e @ [NOT]
 
        | Apply("&&",[b1;b2]) -> let labend   = newLabel()
                                 let labfalse = newLabel()
@@ -55,21 +53,17 @@ module CodeGeneration =
                                           | "<>" -> [EQ; NOT]
                                           | _    -> failwith "CE: this case is not possible"
                                 CE vEnv fEnv e1 @ CE vEnv fEnv e2 @ ins
-
-      //  | Apply(">",[e1;e2]) -> CE vEnv fEnv e2 @ CE vEnv fEnv e1 @ [LT] // There is no greater than: Reverse the two elements
-
+       | Addr acc       -> CA vEnv fEnv acc
+       //| Apply(">",[e1;e2]) -> CE vEnv fEnv e2 @ CE vEnv fEnv e1 @ [LT] // There is no greater than: Reverse the two elements
        | Apply("<>",[e1;e2]) -> CE vEnv fEnv e1 @ CE vEnv fEnv e2 @ [LT] // There is no greater than: Reverse the two elements
-
-       | _            -> failwith "CE: not supported yet"
+       //| Call(f, es) -> List.collect (CE vEnv fEnv) es @ [CALL(List.length es, 0)]
 
 /// CA vEnv fEnv acc gives the code for an access acc on the basis of a variable and a function environment
    and CA vEnv fEnv = function | AVar x         -> match Map.find x (fst vEnv) with
                                                    | (GloVar addr,_) -> [CSTI addr]
-                                                   | (LocVar addr,_) -> failwith "CA: Local variables not supported yet"
-                               | AIndex(acc, e) -> match acc with
-                                                   | (AIndex _) -> failwith "CA: Array of arrays not permitted."
-                                                   | _          -> CA vEnv fEnv acc @ CE vEnv fEnv e
-                               | ADeref e       -> failwith "CA: pointer dereferencing not supported yet"
+                                                   | (LocVar addr,_) -> [GETBP; CSTI addr; ADD]
+                               | AIndex(acc, e) -> CA vEnv fEnv acc @ [LDI] @ CE vEnv fEnv e @ [ADD]
+                               | ADeref e       -> CE vEnv fEnv e
 
 (* Bind declared variable in env and generate code to allocate it: *)
    let allocate (kind : int -> Var) (typ, x) (vEnv : varEnv)  =
@@ -84,12 +78,15 @@ module CodeGeneration =
 
 /// CS vEnv fEnv s gives the code for a statement s on the basis of a variable and a function environment
    let rec CS vEnv fEnv = function
-       | PrintLn e        -> CE vEnv fEnv e @ [PRINTI; INCSP -1]
-       | Ass(acc,e)       -> CA vEnv fEnv acc @ CE vEnv fEnv e @ [STI; INCSP -1]
-       | Block([],stms)   -> CSs vEnv fEnv stms
-       | Alt(gcs)         -> CGCALTs vEnv fEnv gcs
-       | Do(gcs)          -> CGCDOs vEnv fEnv gcs
-       | _                -> failwith "CS: this statement is not supported yet"
+       | PrintLn e         -> CE vEnv fEnv e @ [PRINTI; INCSP -1]
+       | Ass(acc,e)        -> CA vEnv fEnv acc @ CE vEnv fEnv e @ [STI; INCSP -1]
+       | MulAssign(_as,es) -> List.concat (List.map2 (fun acc exp -> (CS vEnv fEnv (Ass(acc, exp)))) _as es)
+       | Block([],stms)    -> CSs vEnv fEnv stms
+       | Alt(gcs)          -> CGCALTs vEnv fEnv gcs
+       | Do(gcs)           -> CGCDOs vEnv fEnv gcs
+       | Return None       -> [RET (snd vEnv - 1)]
+       | Return (Some e)   -> CE vEnv fEnv e @ [RET (snd vEnv)]
+       | _                 -> failwith "CS: this statement is not supported yet"
 
    and CSs vEnv fEnv stms = List.collect (CS vEnv fEnv) stms
    and CGCDOs vEnv fEnv = function

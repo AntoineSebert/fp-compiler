@@ -35,6 +35,8 @@ type token =
   | RP
   | RCP
   | RSP
+  | AMP
+  | CAR
   | ITYP
   | BTYP
   | NAME of (string)
@@ -76,6 +78,8 @@ type tokenId =
     | TOKEN_RP
     | TOKEN_RCP
     | TOKEN_RSP
+    | TOKEN_AMP
+    | TOKEN_CAR
     | TOKEN_ITYP
     | TOKEN_BTYP
     | TOKEN_NAME
@@ -95,12 +99,16 @@ type nonTerminalId =
     | NONTERM_DecL
     | NONTERM_DecList
     | NONTERM_Access
+    | NONTERM_AccessList
     | NONTERM_Stm
     | NONTERM_StmL
     | NONTERM_StmList
     | NONTERM_GuardedCommand
     | NONTERM_GCList
     | NONTERM_Exp
+    | NONTERM_ExprNotAccess
+    | NONTERM_AtExprNotAccess
+    | NONTERM_ExpList
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 
