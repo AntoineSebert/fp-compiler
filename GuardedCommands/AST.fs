@@ -26,10 +26,10 @@ module AST =
         | PrintLn of Exp                                 (* Print                              *)
         | Ass of Access * Exp                            (* x:=e  or  p^:=e  or  a[e]:=e       *)
         | MulAssign of Access list * Exp list            (* x, p^, a[e] := e1, e2, e3          *)
-        | Return of Exp option                           (* Return from function               *)
         | Alt of GuardedCommand                          (* Alternative statement              *)
         | Do of GuardedCommand                           (* Repetition statement               *)
-        | Block of Dec list * Stm list                   (* Block: grouping and scope          *)
+        | Block of Stm list                              (* Block: grouping and scope          *)
+        | Return of Exp                                  (* Return from function               *)
         | Call of string * Exp list                      (* Procedure call                     *)
 
     and GuardedCommand = GC of (Exp * Stm list) list     (* Guarded commands                   *)

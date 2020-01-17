@@ -21,9 +21,12 @@ let keyword s =
     | "od"        -> OD
     | "true"      -> BOOL(true)
     | "false"     -> BOOL(false)
+    | "return"    -> RETURN
+    | "procedure" -> PROC
+    | "function"  -> FUNC
     | _           -> NAME s
 
-# 26 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 29 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
 let trans : uint16[] array = 
     [| 
    (* State 0 *)
@@ -102,154 +105,154 @@ let rec _fslex_dummy () = _fslex_dummy()
 and tokenize  lexbuf =
   match _fslex_tables.Interpret(0,lexbuf) with
   | 0 -> ( 
-# 38 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   tokenize lexbuf 
-# 107 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 41 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  tokenize lexbuf 
+# 110 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 1 -> ( 
-# 39 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf 
-# 112 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 42 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf 
+# 115 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 2 -> ( 
-# 40 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   INT<| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
-# 117 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 43 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  INT <| Int32.Parse(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
+# 120 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 3 -> ( 
-# 41 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   LP  
-# 122 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 44 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  LP  
+# 125 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 4 -> ( 
-# 42 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   RP  
-# 127 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 45 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  RP  
+# 130 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 5 -> ( 
-# 43 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   LSP 
-# 132 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 46 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  LSP 
+# 135 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 6 -> ( 
-# 44 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   RSP 
-# 137 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 47 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  RSP 
+# 140 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 7 -> ( 
-# 45 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   LCP 
-# 142 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 48 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  LCP 
+# 145 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 8 -> ( 
-# 46 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   RCP 
-# 147 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 49 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  RCP 
+# 150 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 9 -> ( 
-# 47 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   COMMA 
-# 152 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 50 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  COMMA 
+# 155 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 10 -> ( 
-# 48 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   SEMI 
-# 157 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 51 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  SEMI 
+# 160 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 11 -> ( 
-# 49 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   COLON 
-# 162 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 52 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  COLON 
+# 165 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 12 -> ( 
-# 50 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   BAR 
-# 167 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 53 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  BAR 
+# 170 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 13 -> ( 
-# 51 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   TO 
-# 172 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 54 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  TO 
+# 175 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 14 -> ( 
-# 52 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   ASG 
-# 177 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 55 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  ASG 
+# 180 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 15 -> ( 
-# 53 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   NEG 
-# 182 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 56 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  NEG 
+# 185 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 16 -> ( 
-# 54 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   AND 
-# 187 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 57 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  AND 
+# 190 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 17 -> ( 
-# 55 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   OR 
-# 192 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 58 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  OR 
+# 195 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 18 -> ( 
-# 56 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   NEQ 
-# 197 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 59 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  NEQ 
+# 200 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 19 -> ( 
-# 57 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   LT 
-# 202 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 60 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  LT 
+# 205 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 20 -> ( 
-# 58 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   GT 
-# 207 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 61 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  GT 
+# 210 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 21 -> ( 
-# 59 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   LE 
-# 212 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 62 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  LE 
+# 215 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 22 -> ( 
-# 60 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   TIMES 
-# 217 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 63 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  TIMES 
+# 220 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 23 -> ( 
-# 61 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   MINUS 
-# 222 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 64 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  MINUS 
+# 225 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 24 -> ( 
-# 62 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   EQ 
-# 227 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 65 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  EQ 
+# 230 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 25 -> ( 
-# 63 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   PLUS 
-# 232 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 66 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  PLUS 
+# 235 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 26 -> ( 
-# 64 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
-# 237 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 67 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) 
+# 240 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 27 -> ( 
-# 65 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   CAR 
-# 242 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 68 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  CAR 
+# 245 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 28 -> ( 
-# 66 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   AMP 
-# 247 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 69 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  AMP 
+# 250 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | 29 -> ( 
-# 67 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
-                                   EOF 
-# 252 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
+# 70 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fsl"
+                                  EOF 
+# 255 "D:\Users\i\Desktop\fp-compiler\GuardedCommands\Lexer.fs"
           )
   | _ -> failwith "tokenize"
 

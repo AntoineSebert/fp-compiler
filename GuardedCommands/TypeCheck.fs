@@ -21,7 +21,7 @@ module TypeCheck =
             when List.exists (fun x -> x = f) monops -> tcMonadic gtenv ltenv f e
         | Apply(f, [e1; e2])
             when List.exists (fun x -> x = f) dyops  -> tcDyadic gtenv ltenv f e1 e2
-        | Apply(f, es)                               -> failwith ("tcE: not supported yet")
+        | Apply(f, es)                               -> tcNaryFunction gtenv ltenv f es
         | Addr acc                                   -> tcA gtenv ltenv acc
 
     and tcMonadic gtenv ltenv f e =
@@ -44,10 +44,65 @@ module TypeCheck =
             when List.exists (fun x ->  x = o) ["&&"; "="; "||"]           -> BTyp
         | _                                                                -> failwith("illegal/illtyped dyadic expression: " + f)
 
-    // Typ option * string * Dec list * Stm
-    and tcNaryFunction gtenv ltenv f es = failwith "type check: functions not supported yet"
+    and tcNaryFunction gtenv ltenv f es =
+        match Map.tryFind f ltenv with
+        | Some t ->
+            match t with
+            | FTyp(pats, opt_ret) ->
+                List.iter2 (fun typ exp ->
+                    if typ = tcE gtenv ltenv exp
+                    then ()
+                    else failwith ("type mismatch in call for " + f)
+                ) pats es
+                match opt_ret with
+                | Some t -> t
+                | None -> failwith (f + " is a procedure, expected a function")
+            | _ -> failwith (f + " is not a function nor a procedure")
+        | None    ->
+            match Map.tryFind f gtenv with
+            | Some t ->
+                match t with
+                | FTyp(pats, opt_ret) ->
+                    List.iter2 (fun typ exp ->
+                        if typ = tcE gtenv ltenv exp
+                        then ()
+                        else failwith ("type mismatch in call for " + f)
+                    ) pats es
+                    match opt_ret with
+                    | Some t -> t
+                    | None -> failwith (f + " is a procedure, expected a function")
+                | _ -> failwith (f + " is not a function nor a procedure")
+            | None    -> failwith ("no declaration for : " + f)
 
-    and tcNaryProcedure gtenv ltenv f es = failwith "type check: procedures not supported yet"
+    and tcNaryProcedure gtenv ltenv f es =
+        match Map.tryFind f ltenv with
+        | Some t ->
+            match t with
+            | FTyp(pats, opt_ret) ->
+                List.iter2 (fun typ exp ->
+                    if typ = tcE gtenv ltenv exp
+                    then ()
+                    else failwith ("type mismatch in call for " + f)
+                ) pats es
+                if opt_ret.IsSome
+                then failwith (f + " is a function, expected a procedure")
+                else ()
+            | _ -> failwith (f + " is not a function nor a procedure")
+        | None    ->
+            match Map.tryFind f gtenv with
+            | Some t ->
+                match t with
+                | FTyp(pats, opt_ret) ->
+                    List.iter2 (fun typ exp ->
+                        if typ = tcE gtenv ltenv exp
+                        then ()
+                        else failwith ("type mismatch in call for " + f)
+                    ) pats es
+                    if opt_ret.IsSome
+                    then failwith (f + " is a function, expected a procedure")
+                    else ()
+                | _ -> failwith (f + " is not a function nor a procedure")
+            | None    -> failwith ("no declaration for : " + f)
 
 /// tcA gtenv ltenv e gives the type for access acc on the basis of type environments gtenv and ltenv
 /// for global and local variables
@@ -68,62 +123,41 @@ module TypeCheck =
     and tcS gtenv ltenv =
         function
         | PrintLn e          -> ignore(tcE gtenv ltenv e)
-        | Ass(acc, e)        -> if tcA gtenv ltenv acc = tcE gtenv ltenv e
-                                then ()
-                                else failwith "illtyped assignment"
+        | Ass(acc, e)        -> if tcA gtenv ltenv acc <> tcE gtenv ltenv e then failwith "illtyped assignment"
         | MulAssign(_as, es) -> ignore(List.iter2 (fun acc exp -> (tcS gtenv ltenv (Ass(acc, exp)))) _as, es)
-        | Return opt_e       -> match opt_e with
-                                | Some e -> ignore(tcE gtenv ltenv e)
-                                | None   -> ()
+        | Return e           -> ignore(tcE gtenv ltenv e)
         | Alt gcs            -> ignore(tcGCs gtenv ltenv gcs)
         | Do gcs             -> ignore(tcGCs gtenv ltenv gcs)
-        | Block(decs, stms)  -> List.iter (tcS gtenv (tcGDecs ltenv decs)) stms
-        | Call(s, es)        -> for e in es do ignore(tcE gtenv ltenv e)
+        | Block stms         -> List.iter (tcS gtenv ltenv) stms
+        | Call(_, es)        -> ignore(List.map (tcE gtenv ltenv) es)
 
     and tcGC gtenv ltenv =
         function
-        | (_,[])   -> failwith "tcGC: Guarded command doesn't have any statements"
-        | (e,stms) -> if tcE gtenv ltenv e = BTyp
-                      then List.iter (tcS gtenv ltenv) stms
-                      else failwith "tcGC: Guarded command is not of boolean type"
+        | (_, [])   -> failwith "tcGC: Guarded command doesn't have any statements"
+        | (e, stms) -> if tcE gtenv ltenv e = BTyp
+                       then List.iter (tcS gtenv ltenv) stms
+                       else failwith "tcGC: Guarded command is not of boolean type"
 
     and tcGCs gtenv ltenv = function GC(gcs) -> List.iter (tcGC gtenv ltenv) gcs
-    
-    (*
-    and tcStmReturnType topt gtenv ltenv stm = function
-        // unwrap opt and check
-        | Return opt_e -> if opt_e <> topt
-                            then failwith "tcStmReturnType: all return statements must have the function's return type"
-                            else tcS gtenv ltenv
-                          topt
-        | Block([], stms) ->
-          for stm in stms do
-            tcStmReturnType topt gtenv ltenv stm
-          topt
-        | _ -> topt
-
-    and tcFunParam decs =
-        // test distinct
-        //[1; 2; 2; 3]
-        //[1; 2; 3]
-        tcGDecs Map.empty decs
-
-    and tcFun gtenv topt f decs stm =
-        (*
-        match (tcStmReturnType topt gtenv (tcFunParam decs) stm) with
-        | Some t -> Map.add f t gtenv
-        | None -> failith ""
-        *)
-        Map.epty
-        *)
 
     and tcGDec gtenv =
         function
         | VarDec(t, s)               -> Map.add s t gtenv
         | FunDec(topt, f, decs, stm) ->
-            match topt with
-            | None -> tcNaryProcedure gtenv Map.empty f []
-            | Some _ -> tcNaryFunction gtenv Map.empty f []
+            let ltenv: Map<string, Typ> = tcGDecs Map.empty decs
+
+            if ltenv.Count <> decs.Length
+            then failwith ("Formal parameters for " + f + " must be all different")
+
+            let rec check_statement (statement: Stm, ret_type: Typ) =
+                match statement with
+                | Return e   -> if tcE gtenv ltenv e <> ret_type then failwith ("Type mismatch in return statement in " + f)
+                | Block stms -> List.iter (fun stm -> check_statement (stm, ret_type)) stms
+                | _          -> tcS gtenv ltenv stm
+
+            if topt.IsSome then check_statement (stm, Option.get topt)
+
+            Map.add f (FTyp((List.map (fun x -> snd x) (Map.toList ltenv)), topt)) gtenv
 
     and tcGDecs gtenv =
         function

@@ -26,6 +26,7 @@ module TestGen =
         | Apply(op, [exp]) -> op + exp_to_string exp
         | Apply(op, [e1; e2]) -> "(" + exp_to_string e1 + " " + op + " " + exp_to_string e2 + ")"
         | Apply(f, es) -> ""
+        | Addr _ -> ""
 
     and acc_to_string (acc: Access): string =
         match acc with
@@ -37,17 +38,14 @@ module TestGen =
         match stm with
         | PrintLn exp -> indent level + "print " + exp_to_string exp
         | Ass(acc, e) -> indent level + acc_to_string acc + " := " + exp_to_string e
-        //| MulAssign of Access list * Exp list
-        | Return opt_e -> indent level + "return"
-                          + match opt_e with
-                            | Some e -> " " + exp_to_string e
-                            | None -> ""
+        | MulAssign(_as, es) -> ""
+        | Return e -> indent level + "return " + exp_to_string e
         | Alt gc -> gc_to_string(gc, level)
         | Do gc -> gc_to_string(gc, level)
-        | Block(decs, stms) -> " {"
+        | Block stms -> " {"
                                + List.fold (fun r s -> r + s + ",\n\t")
                                            ""
-                                           ([for dec in decs do dec_to_string(dec, level)]@[for stm in stms do stm_to_string(stm, level)])
+                                           [for stm in stms do stm_to_string(stm, level)]
                                + "}"
         | Call(name, exps) -> name
                               + "("
@@ -169,9 +167,7 @@ module TestGen =
     let rec gen_stm (scope: Map<string, Typ>): Stm =
         match rand.Next(20) with
         | 0 | 1 | 2 | 3 -> PrintLn(gen_exp scope)
-        | 4 -> if rand.Next(2) = 1
-               then Return(None)
-               else Return(Some(gen_exp scope))
+        | 4 ->  Return(gen_exp scope)
         (*
         | 5 -> Alt(gen_gc scope)
         | 6 -> Do(gen_gc scope)
