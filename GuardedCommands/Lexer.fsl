@@ -64,5 +64,7 @@ rule tokenize =
     | '-'        { MINUS }
     | '='        { EQ }
     | '+'        { PLUS }
+    | "^"        { CAR }
+    | "&"        { AMP }
     | identifier { keyword(Encoding.UTF8.GetString(lexbuf.Lexeme)) }
     | eof        { EOF }
