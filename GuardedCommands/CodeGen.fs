@@ -90,7 +90,7 @@ module CodeGeneration =
         | PrintLn e          -> CE vEnv fEnv e @ [PRINTI; INCSP -1]
         | Ass(acc, e)        -> CA vEnv fEnv acc @ CE vEnv fEnv e @ [STI; INCSP -1]
         | MulAssign(_as, es) -> List.concat (List.map2 (fun acc exp -> (CS vEnv fEnv (Ass(acc, exp)))) _as es)
-        | Block stms         -> CSs vEnv fEnv stms
+        | Block(decs,stms)   -> CSs vEnv fEnv stms
         | Alt gcs            -> CGCALTs vEnv fEnv gcs
         | Do gcs             -> CGCDOs vEnv fEnv gcs
         | Return e           -> CE vEnv fEnv e @ [RET (snd vEnv)]

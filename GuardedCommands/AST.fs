@@ -28,7 +28,7 @@ module AST =
         | MulAssign of Access list * Exp list            (* x, p^, a[e] := e1, e2, e3          *)
         | Alt of GuardedCommand                          (* Alternative statement              *)
         | Do of GuardedCommand                           (* Repetition statement               *)
-        | Block of Stm list                              (* Block: grouping and scope          *)
+        | Block of Dec list * Stm list                   (* Block: grouping and scope          *)
         | Return of Exp                                  (* Return from function               *)
         | Call of string * Exp list                      (* Procedure call                     *)
 

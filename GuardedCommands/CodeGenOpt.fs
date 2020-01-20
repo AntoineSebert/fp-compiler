@@ -160,7 +160,7 @@ module CodeGenerationOpt =
         match stm with
         | PrintLn e   -> CE e vEnv fEnv (PRINTI:: INCSP -1 :: k)
         | Ass(acc, e) -> CA acc vEnv fEnv (CE e vEnv fEnv (STI:: addINCSP -1 k))
-        | Block stms  -> CSs stms vEnv fEnv k
+        | Block(decs,stms)   -> CSs stms vEnv fEnv k
         | _           -> failwith "CS: this statement is not supported yet"
 
     and CSs stms vEnv fEnv k =

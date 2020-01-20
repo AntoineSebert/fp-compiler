@@ -128,7 +128,7 @@ module TypeCheck =
         | Return e           -> ignore(tcE gtenv ltenv e)
         | Alt gcs            -> ignore(tcGCs gtenv ltenv gcs)
         | Do gcs             -> ignore(tcGCs gtenv ltenv gcs)
-        | Block stms         -> List.iter (tcS gtenv ltenv) stms
+        | Block(decs,stms)   -> List.iter (tcS gtenv (tcGDecs ltenv decs)) stms
         | Call(_, es)        -> ignore(List.map (tcE gtenv ltenv) es)
 
     and tcGC gtenv ltenv =
@@ -151,9 +151,9 @@ module TypeCheck =
 
             let rec check_statement (statement: Stm, ret_type: Typ) =
                 match statement with
-                | Return e   -> if tcE gtenv ltenv e <> ret_type then failwith ("Type mismatch in return statement in " + f)
-                | Block stms -> List.iter (fun stm -> check_statement (stm, ret_type)) stms
-                | _          -> tcS gtenv ltenv stm
+                | Return e         -> if tcE gtenv ltenv e <> ret_type then failwith ("Type mismatch in return statement in " + f)
+                | Block(_,stms) -> List.iter (fun stm -> check_statement (stm, ret_type)) stms
+                | _                -> tcS gtenv ltenv stm
 
             if topt.IsSome then check_statement (stm, Option.get topt)
 
